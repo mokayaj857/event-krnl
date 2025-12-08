@@ -1,55 +1,59 @@
-//Commented out initial blocks of code at the botton
-
-
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import toast from 'react-toastify'; // Install react-toastify for notifications
+import toast from 'react-toastify';
 
 export default function ConnectWalletButton() {
   const [walletAddress, setWalletAddress] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [networkId, setNetworkId] = useState(null);
-  const EXPECTED_CHAIN_ID = 43114; // Example: Avalanche Mainnet
 
-  // Function to connect the wallet
+  // Function to connect to KRNL wallet
   const connectWallet = async () => {
-    if (window.ethereum) {
+    if (window.ethereum?.isKRNL) {
       try {
         setIsConnecting(true);
-
-        // Request account access from MetaMask
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-        // Create an ethers provider
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-        // Validate the network
-        const network = await provider.getNetwork();
-        if (network.chainId !== EXPECTED_CHAIN_ID) {
-          toast.error('Please switch to the Avalanche Mainnet.');
-          setIsConnecting(false);
-          return;
+        
+        // Request account access from KRNL wallet
+        const accounts = await window.ethereum.request({ 
+          method: 'krnl_requestAccounts' 
+        });
+        
+        if (!accounts || accounts.length === 0) {
+          throw new Error('No accounts found in KRNL wallet');
         }
 
-        // Get the signer and wallet address
+        // Get the signer from KRNL wallet
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
         const address = await signer.getAddress();
-
-        // Set wallet address and network state
+        
+        // Get the current network
+        const network = await provider.getNetwork();
+        
+        // Update state
         setWalletAddress(address);
         setNetworkId(network.chainId);
-        toast.success('Wallet connected successfully!');
+        
+        // Store the provider and signer for later use
+        window.krnlProvider = provider;
+        window.krnlSigner = signer;
+        
+        console.log('Connected to KRNL wallet:', { address, network });
+        toast.success('KRNL Wallet connected!');
       } catch (error) {
+        console.error('Error connecting KRNL wallet:', error);
         if (error.code === 4001) {
           toast.error('Connection request was rejected.');
         } else {
-          toast.error('An unexpected error occurred while connecting the wallet.');
+          toast.error('Failed to connect KRNL wallet. Please ensure it is installed and unlocked.');
         }
       } finally {
         setIsConnecting(false);
       }
     } else {
-      toast.error('Please install MetaMask or another Ethereum-compatible wallet to connect.');
+      toast.error('Please install the KRNL wallet extension to connect.');
+      // Optionally provide a link to install KRNL
+      window.open('https://krnl.gg/wallet', '_blank');
     }
   };
 
@@ -63,30 +67,64 @@ export default function ConnectWalletButton() {
   // Handle account and network changes
   useEffect(() => {
     const handleAccountsChanged = (accounts) => {
-      if (accounts.length > 0) {
+      console.log('Accounts changed:', accounts);
+      if (accounts && accounts.length > 0) {
         setWalletAddress(accounts[0]);
       } else {
         disconnectWallet();
       }
     };
 
-    const handleChainChanged = async (chainId) => {
-      const numericChainId = parseInt(chainId, 16); // Convert hex chainId to decimal
+    const handleChainChanged = (chainId) => {
+      console.log('Chain changed:', chainId);
+      // Just update the network ID without any specific chain validation
+      const numericChainId = typeof chainId === 'string' ? parseInt(chainId, 16) : chainId;
       setNetworkId(numericChainId);
-
-      if (numericChainId !== EXPECTED_CHAIN_ID) {
-        toast.warn('You are on the wrong network. Please switch to the Avalanche Mainnet.');
-      }
     };
 
-    if (window.ethereum) {
+    // Check if KRNL wallet is installed
+    if (window.ethereum?.isKRNL) {
+      console.log('KRNL wallet detected, setting up event listeners');
+      
+      // Set up event listeners for KRNL wallet
       window.ethereum.on('accountsChanged', handleAccountsChanged);
       window.ethereum.on('chainChanged', handleChainChanged);
+      
+      // Try to connect automatically if already authorized
+      const checkConnection = async () => {
+        try {
+          const accounts = await window.ethereum.request({ 
+            method: 'eth_accounts' 
+          });
+          
+          if (accounts && accounts.length > 0) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const network = await provider.getNetwork();
+            const signer = provider.getSigner();
+            
+            setWalletAddress(accounts[0]);
+            setNetworkId(network.chainId);
+            window.krnlProvider = provider;
+            window.krnlSigner = signer;
+            
+            console.log('Auto-connected to KRNL wallet:', {
+              address: accounts[0],
+              chainId: network.chainId
+            });
+          }
+        } catch (error) {
+          console.error('Error checking KRNL connection:', error);
+        }
+      };
+      
+      checkConnection().catch(console.error);
+      
+      checkConnection();
     }
 
-    // Cleanup listeners when the component is unmounted
+    // Cleanup
     return () => {
-      if (window.ethereum) {
+      if (window.ethereum?.removeListener) {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
         window.ethereum.removeListener('chainChanged', handleChainChanged);
       }
