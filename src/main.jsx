@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { Web3Provider } from './context/Web3Context';
 import Home from './pages/Home';
 import Discover from './pages/Discover';
 import Testimonials from './pages/Testimonials';
@@ -20,6 +21,7 @@ import Myevent from './pages/Myevent';
 import './index.css';
 import WaitlistPage from './pages/WaitingList';
 import QuantumTicketResale from './pages/QuantamTicketResale';
+import EventManager from './components/events/EventManager';
 
 const router = createBrowserRouter([
   {
@@ -52,7 +54,7 @@ const router = createBrowserRouter([
     element: <Layout><Hero /></Layout>,
   },
   {
-    path: "event",
+    path: "events",
     element: <Layout><EventList /></Layout>,
   },
   {
@@ -82,17 +84,33 @@ const router = createBrowserRouter([
     path: "resell",
     element: <Layout><QuantumTicketResale /></Layout>
   },
-
+  {
+    path: "manage-events",
+    element: <Layout><EventManager /></Layout>
+  },
   {
     path: "*",
     element: <Footer />,
   },
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+// Extend the theme
+const theme = extendTheme({
+  styles: {
+    global: {
+      body: {
+        bg: 'gray.50',
+      },
+    },
+  },
+});
+
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ChakraProvider value={defaultSystem}>
-      <RouterProvider router={router} />
+    <ChakraProvider theme={theme}>
+      <Web3Provider>
+        <RouterProvider router={router} />
+      </Web3Provider>
     </ChakraProvider>
   </React.StrictMode>
 );
