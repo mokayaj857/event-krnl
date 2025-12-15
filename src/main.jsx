@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
-import { Web3Provider } from './context/Web3Context';
+import { Web3Provider } from './context/Web3Context.jsx';
 import Home from './pages/Home';
 import Discover from './pages/Discover';
 import Testimonials from './pages/Testimonials';
