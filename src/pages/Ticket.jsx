@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Ticket as TicketIcon, Calendar, MapPin, User, QrCode, Download, AlertCircle, Loader, Eye, DollarSign, MessageSquare } from 'lucide-react';
 import { useWallet } from '../contexts/WalletContext';
+import { useAvaraContracts } from '../hooks/useAvaraContracts';
 
 const AVALANCHE_MAINNET_PARAMS = {
   chainId: '0xA86A',
@@ -19,6 +20,7 @@ const CONTRACT_ADDRESS = "0x256ff3b9d3df415a05ba42beb5f186c28e103b2a";
 
 const Ticket = () => {
   const { walletAddress, isConnecting, connectWallet, isConnected } = useWallet();
+  const { contracts, provider } = useAvaraContracts();
   
   // UI States
   const [isVisible, setIsVisible] = useState(false);
@@ -44,12 +46,46 @@ const Ticket = () => {
   const fetchUserTickets = async () => {
     try {
       setIsLoading(true);
-      
-      // Check if user has minted tickets (stored in localStorage)
-      const mintedTickets = localStorage.getItem(`mintedTickets_${walletAddress}`);
-      const parsedMintedTickets = mintedTickets ? JSON.parse(mintedTickets) : [];
 
-      // Mock images for tickets
+      if (!walletAddress) {
+        setUserTickets([]);
+        return;
+      }
+
+      if (!contracts?.ticketNFT || !provider) {
+        throw new Error('Contracts are not initialized. Please connect your wallet.');
+      }
+
+      const ticketNFT = contracts.ticketNFT;
+
+      // TicketNFT is not enumerable, so we derive owned tokenIds from Transfer logs.
+      const fromBlock = Number(import.meta.env.VITE_TICKET_DEPLOY_BLOCK || 0);
+      const currentBlock = await provider.getBlockNumber();
+
+      const receivedLogs = await ticketNFT.queryFilter(ticketNFT.filters.Transfer(null, walletAddress), fromBlock, currentBlock);
+      const sentLogs = await ticketNFT.queryFilter(ticketNFT.filters.Transfer(walletAddress, null), fromBlock, currentBlock);
+
+      const ownership = new Map();
+
+      for (const log of receivedLogs) {
+        const tokenId = log.args?.tokenId;
+        if (tokenId !== undefined && tokenId !== null) {
+          ownership.set(tokenId.toString(), walletAddress);
+        }
+      }
+
+      for (const log of sentLogs) {
+        const tokenId = log.args?.tokenId;
+        const to = log.args?.to;
+        if (tokenId !== undefined && tokenId !== null) {
+          ownership.set(tokenId.toString(), to);
+        }
+      }
+
+      const ownedTokenIds = Array.from(ownership.entries())
+        .filter(([, owner]) => (owner || '').toLowerCase() === walletAddress.toLowerCase())
+        .map(([tokenId]) => tokenId);
+
       const mockImages = [
         "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
         "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=300&fit=crop",
@@ -57,58 +93,62 @@ const Ticket = () => {
         "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=300&fit=crop"
       ];
 
-      // Base tickets (always available for demo)
-      const demoTickets = [
-        {
-          tokenId: "1",
-          eventId: "event_1",
-          eventName: "EventVax Summit 2025",
-          eventDate: "March 15, 2025",
-          eventTime: "2:00 PM - 10:00 PM",
-          venue: "Convention Center, New York",
-          address: "123 Convention Ave, New York, NY 10001",
-          ticketType: "VIP Access",
-          seatNumber: "VIP-A12",
-          price: "0.08 AVAX",
-          qrCode: "QR123456789",
-          status: "Valid",
-          description: "Premium access to all VIP areas, networking sessions, and exclusive content.",
-          image: mockImages[0],
-          mintDate: "2024-12-15T10:30:00Z",
-          owner: walletAddress
-        },
-        {
-          tokenId: "2",
-          eventId: "event_2",
-          eventName: "Web3 Developer Conference",
-          eventDate: "April 22, 2025",
-          eventTime: "9:00 AM - 6:00 PM",
-          venue: "Tech Hub, San Francisco",
-          address: "456 Tech Street, San Francisco, CA 94102",
-          ticketType: "General Admission",
-          seatNumber: "GA-205",
-          price: "0.05 AVAX",
-          qrCode: "QR987654321",
-          status: "Valid",
-          description: "Access to all general sessions, workshops, and networking areas.",
-          image: mockImages[1],
-          mintDate: "2024-12-10T14:15:00Z",
-          owner: walletAddress
-        }
-      ];
+      const tickets = await Promise.all(
+        ownedTokenIds.map(async (tokenId, index) => {
+          let uri = '';
+          let eventId = null;
+          try {
+            [uri, eventId] = await Promise.all([
+              ticketNFT.tokenURI(tokenId),
+              ticketNFT.ticketEvent(tokenId),
+            ]);
+          } catch (e) {
+            console.error('Failed to load token info:', tokenId, e);
+          }
 
-      // Add minted tickets to demo tickets
-      const allTickets = [...demoTickets, ...parsedMintedTickets.map((ticket, index) => ({
-        ...ticket,
-        tokenId: `minted_${index + 3}`,
-        image: mockImages[index % mockImages.length],
-        owner: walletAddress,
-        mintDate: ticket.mintDate || new Date().toISOString()
-      }))];
+          let eventName = `Event #${eventId?.toString?.() ?? ''}`;
+          let eventDate = '';
+          let venue = '';
 
-      setUserTickets(allTickets);
-      if (allTickets.length > 0 && !selectedTicket) {
-        setSelectedTicket(allTickets[0]);
+          if (eventId !== null && eventId !== undefined) {
+            try {
+              const res = await fetch(`/api/events/${eventId.toString()}`);
+              const json = await res.json();
+              if (res.ok && json?.success && json?.data) {
+                eventName = json.data.event_name || eventName;
+                eventDate = json.data.event_date ? new Date(json.data.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
+                venue = json.data.venue || '';
+              }
+            } catch (e) {
+              console.error('Failed to load event details:', eventId?.toString?.(), e);
+            }
+          }
+
+          return {
+            tokenId: tokenId.toString(),
+            eventId: eventId?.toString?.() ?? '',
+            eventName,
+            eventDate,
+            eventTime: '',
+            venue,
+            address: '',
+            ticketType: 'Ticket',
+            seatNumber: '',
+            price: '',
+            qrCode: `TICKET-${tokenId.toString()}`,
+            status: 'Valid',
+            description: uri || '',
+            image: mockImages[index % mockImages.length],
+            mintDate: '',
+            owner: walletAddress,
+            tokenURI: uri,
+          };
+        })
+      );
+
+      setUserTickets(tickets);
+      if (tickets.length > 0 && !selectedTicket) {
+        setSelectedTicket(tickets[0]);
       }
 
     } catch (error) {

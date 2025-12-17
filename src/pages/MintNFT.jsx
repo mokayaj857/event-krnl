@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import CommentRatingSection from '../components/CommentRatingSection';
 import { useWallet } from '../contexts/WalletContext';
+import { useAvaraContracts } from '../hooks/useAvaraContracts';
 
 const QuantumMintNFT = () => {
   const [searchParams] = useSearchParams();
@@ -28,6 +29,7 @@ const QuantumMintNFT = () => {
   const fromTicketPage = searchParams.get('fromTicket') === 'true';
 
   const { walletAddress, isConnecting, connectWallet } = useWallet();
+  const { mintTicket } = useAvaraContracts();
   const [mintingStatus, setMintingStatus] = useState(null);
   const [tokenURI, setTokenURI] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +86,7 @@ const QuantumMintNFT = () => {
 
     try {
       setLoadingEvent(true);
-      const response = await fetch(`http://localhost:8080/api/events/${eventId}`);
+      const response = await fetch(`/api/events/${eventId}`);
       const result = await response.json();
 
       if (result.success) {
@@ -215,6 +217,10 @@ const QuantumMintNFT = () => {
     setCurrentStep(4);
 
     try {
+      if (!eventId) {
+        throw new Error('No event selected');
+      }
+
       if (window.ethereum) {
         const chainId = await window.ethereum.request({ method: 'eth_chainId' });
         if (chainId !== '0xA86A') {
@@ -245,39 +251,41 @@ const QuantumMintNFT = () => {
         }
       }
 
+      setMintingStatus('Requesting KRNL mint proof...');
+      const proofRes = await fetch('/api/krnl/mint-proof', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ to: walletAddress, eventId }),
+      });
+
+      const proofJson = await proofRes.json();
+      if (!proofRes.ok || !proofJson?.success) {
+        throw new Error(proofJson?.error || 'Failed to obtain KRNL mint proof');
+      }
+
+      const { timestamp, nonce, signature } = proofJson.data;
+
       setMintingStatus('Please confirm the transaction in your wallet...');
 
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      const tx = await mintTicket(
+        walletAddress,
+        tokenURI,
+        Number(eventId),
+        Number(timestamp),
+        Number(nonce),
+        signature
+      );
 
-      const currentTicket = getCurrentTicketDetails();
-      const mintedTicket = {
-        eventId: eventId,
-        eventName: currentTicket.name,
-        eventDate: currentTicket.attributes.find(attr => attr.trait_type === "Date")?.value || eventData.date,
-        eventTime: "2:00 PM - 10:00 PM",
-        venue: currentTicket.attributes.find(attr => attr.trait_type === "Venue")?.value || eventData.venue,
-        address: "123 Convention Ave, New York, NY 10001",
-        ticketType: currentTicket.attributes.find(attr => attr.trait_type === "Ticket Type")?.value || "Regular",
-        seatNumber: `${selectedTicketType.toUpperCase()}-${Math.floor(Math.random() * 1000)}`,
-        price: currentTicket.attributes.find(attr => attr.trait_type === "Price")?.value || "0 AVAX",
-        qrCode: `QR${Math.random().toString(36).substring(2, 15)}`,
-        status: "Valid",
-        description: currentTicket.description,
-        mintDate: new Date().toISOString(),
-        tokenURI: tokenURI,
-        tokenId: `TICKET-${Date.now()}`
-      };
-
-      const existingTickets = localStorage.getItem(`mintedTickets_${walletAddress}`);
-      const tickets = existingTickets ? JSON.parse(existingTickets) : [];
-      tickets.push(mintedTicket);
-      localStorage.setItem(`mintedTickets_${walletAddress}`, JSON.stringify(tickets));
-
-      setMintingStatus('🎉 NFT Ticket Minted Successfully!');
-      setMintedTicketData(mintedTicket);
+      setMintingStatus(`🎉 Ticket minted on-chain! Tx: ${tx?.hash || ''}`);
+      setMintedTicketData({
+        txHash: tx?.hash,
+        eventId,
+        tokenURI,
+      });
 
       setTokenURI('');
-      localStorage.removeItem('pendingTicketMetadata');
 
       setTimeout(() => {
         setShowSuccessModal(true);

@@ -2,8 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import 'dotenv/config';
 import chatbotRouter from './routes/chatbot.js';
 import eventsRouter from './routes/events.js';
+import krnlRouter from './routes/krnl.js';
 import { initDatabase } from './utils/database.js';
 
 // Get current directory
@@ -30,6 +32,7 @@ try {
 // Routes
 app.use('/api/chatbot', chatbotRouter);
 app.use('/api/events', eventsRouter);
+app.use('/api/krnl', krnlRouter);
 
 // Basic health check endpoint
 app.get('/health', (req, res) => {

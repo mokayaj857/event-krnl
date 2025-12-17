@@ -125,7 +125,7 @@ const UltimateEventPlatform = () => {
   const fetchEvents = async () => {
     try {
       setIsLoadingEvents(true);
-      const response = await fetch('http://localhost:8080/api/events');
+      const response = await fetch('/api/events');
       const result = await response.json();
 
       if (result.success) {

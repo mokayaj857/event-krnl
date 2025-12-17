@@ -23,6 +23,7 @@ import EventDashboard from './pages/EventDashboard';
 import './index.css';
 import WaitlistPage from './pages/WaitingList';
 import QuantumTicketResale from './pages/QuantamTicketResale';
+import AvaraContractExample from './components/AvaraContractExample';
 
 const router = createBrowserRouter([
   {
@@ -94,6 +95,11 @@ const router = createBrowserRouter([
   {
     path: "event-dashboard/:eventId",
     element: <Layout><EventDashboard /></Layout>
+  },
+
+  {
+    path: "contracts",
+    element: <Layout><AvaraContractExample /></Layout>
   },
 
   {
