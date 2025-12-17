@@ -6,6 +6,7 @@ import 'dotenv/config';
 import chatbotRouter from './routes/chatbot.js';
 import eventsRouter from './routes/events.js';
 import krnlRouter from './routes/krnl.js';
+import contractsRouter from './routes/contracts.js';
 import { initDatabase } from './utils/database.js';
 
 // Get current directory
@@ -33,6 +34,7 @@ try {
 app.use('/api/chatbot', chatbotRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/krnl', krnlRouter);
+app.use('/api/contracts', contractsRouter);
 
 // Basic health check endpoint
 app.get('/health', (req, res) => {

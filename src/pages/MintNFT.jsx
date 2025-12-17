@@ -223,29 +223,47 @@ const QuantumMintNFT = () => {
 
       if (window.ethereum) {
         const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        if (chainId !== '0xA86A') {
-          setMintingStatus('Please switch to Avalanche network...');
+        const expectedChainIdNum = Number(import.meta.env.VITE_EXPECTED_CHAIN_ID || 0) || null;
+        const expectedChainIdHex = expectedChainIdNum ? `0x${expectedChainIdNum.toString(16)}` : null;
+
+        if (expectedChainIdHex && chainId?.toLowerCase?.() !== expectedChainIdHex.toLowerCase()) {
+          setMintingStatus('Please switch to the correct network...');
           try {
             await window.ethereum.request({
               method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0xA86A' }],
+              params: [{ chainId: expectedChainIdHex }],
             });
           } catch (switchError) {
-            if (switchError.code === 4902) {
+            if (switchError?.code === 4902) {
+              const rpcUrls = (import.meta.env.VITE_CHAIN_RPC_URLS || '')
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean);
+
+              const blockExplorerUrls = (import.meta.env.VITE_CHAIN_BLOCK_EXPLORER_URLS || '')
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean);
+
+              const chainName = import.meta.env.VITE_CHAIN_NAME || 'Custom Network';
+              const nativeCurrency = {
+                name: import.meta.env.VITE_CHAIN_NATIVE_NAME || 'ETH',
+                symbol: import.meta.env.VITE_CHAIN_NATIVE_SYMBOL || 'ETH',
+                decimals: 18,
+              };
+
               await window.ethereum.request({
                 method: 'wallet_addEthereumChain',
                 params: [{
-                  chainId: '0xA86A',
-                  chainName: 'Avalanche Mainnet C-Chain',
-                  nativeCurrency: {
-                    name: 'Avalanche',
-                    symbol: 'AVAX',
-                    decimals: 18
-                  },
-                  rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
-                  blockExplorerUrls: ['https://snowtrace.io/']
-                }]
+                  chainId: expectedChainIdHex,
+                  chainName,
+                  nativeCurrency,
+                  rpcUrls,
+                  blockExplorerUrls,
+                }],
               });
+            } else {
+              throw switchError;
             }
           }
         }

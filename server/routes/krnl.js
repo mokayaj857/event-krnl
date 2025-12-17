@@ -20,6 +20,12 @@ router.post('/mint-proof', async (req, res) => {
       return res.status(500).json({ success: false, error: 'KRNL_PRIVATE_KEY not configured on server' });
     }
 
+    const wallet = new ethers.Wallet(privateKey);
+    const signerAddress = await wallet.getAddress();
+    const expectedSigner = process.env.KRNL_SIGNER_ADDRESS;
+    const signerMismatch =
+      !!expectedSigner && signerAddress.toLowerCase() !== expectedSigner.toLowerCase();
+
     const timestamp = Math.floor(Date.now() / 1000);
     const nonce = Math.floor(Math.random() * 1_000_000_000);
 
@@ -33,8 +39,6 @@ router.post('/mint-proof', async (req, res) => {
       [action, ticketId, BigInt(eventId), to, BigInt(timestamp), BigInt(nonce)]
     );
 
-    const wallet = new ethers.Wallet(privateKey);
-
     // Solidity uses ECDSA.toEthSignedMessageHash(bytes32)
     // ethers.hashMessage(bytes) reproduces "\x19Ethereum Signed Message:\n32" prefix.
     const signature = await wallet.signMessage(ethers.getBytes(packedHash));
@@ -45,6 +49,8 @@ router.post('/mint-proof', async (req, res) => {
         timestamp,
         nonce,
         signature,
+        signerAddress,
+        signerMismatch,
       },
     });
   } catch (error) {

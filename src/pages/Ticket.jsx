@@ -16,7 +16,7 @@ const AVALANCHE_MAINNET_PARAMS = {
 };
 
 // Replace with your actual contract address and ABI
-const CONTRACT_ADDRESS = "0x256ff3b9d3df415a05ba42beb5f186c28e103b2a";
+const CONTRACT_ADDRESS = import.meta.env.VITE_TICKET_NFT_ADDRESS || "";
 
 const Ticket = () => {
   const { walletAddress, isConnecting, connectWallet, isConnected } = useWallet();

@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
 import Chatbit from './Chatbit';
-
-import contractABI from "../../../../../../../src/abi/Ticket.json";    
-const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS; //<---add address here
+import { useWallet } from '../contexts/WalletContext';
 
 const CreateEvent = () => {
-  const [provider, setProvider] = useState(null);
-  const [contract, setContract] = useState(null);
-  const [account, setAccount] = useState('');
+  const { walletAddress, connectWallet, isConnected } = useWallet();
   const [eventData, setEventData] = useState({
     name: '',
     date: '',
@@ -18,44 +13,7 @@ const CreateEvent = () => {
   });
 
   useEffect(() => {
-    const init = async () => {
-      if (window.ethereum) {
-        try {
-          // Request access to MetaMask
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-          // Create a provider and signer
-          const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-          const signer = web3Provider.getSigner();
-
-          const ticketContract = new ethers.Contract(contractAddress, contractABI, signer);
-
-          setProvider(web3Provider);
-          setContract(ticketContract);
-
-          // Get connected account
-          const accounts = await web3Provider.listAccounts();
-          setAccount(accounts[0]);
-
-          // Listen for network changes
-          provider.on("network", (newNetwork, oldNetwork) => {
-            if (oldNetwork) {
-              window.location.reload();
-            } else {
-              console.log("Network changed to", newNetwork.name);
-            }
-          });
-
-          // Listen for account changes
-          window.ethereum.on('accountsChanged', (accounts) => {
-            setAccount(accounts[0]);
-          });
-        } catch (error) {
-          console.error('Error initializing contract:', error);
-        }
-      }
-    };
-    init();
+    // Wallet connection is managed by WalletContext.
   }, []);
 
   const handleChange = (e) => {
@@ -69,47 +27,45 @@ const CreateEvent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!contract || !account) {
-      alert("Please connect your wallet first!");
-      return
+    if (!isConnected || !walletAddress) {
+      try {
+        await connectWallet();
+      } catch (error) {
+        console.error('Error connecting wallet:', error);
+        alert('Please connect your wallet first.');
+        return;
+      }
     }
 
     try {
-      // Convert price to wei
-      const priceInWei = ethers.parseEther(eventData.ticketPrice);
+      const payload = {
+        eventName: eventData.name,
+        eventDate: eventData.date,
+        venue: eventData.venue,
+        regularPrice: eventData.ticketPrice,
+        description: '',
+        flyerImage: null,
+        creatorAddress: walletAddress,
+        totalTickets: eventData.totalTickets,
+      };
 
-      // Connect to the provider and signer
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-
-      // Connect to the contract
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
-
-      // Send the transaction to the blockchain
-      const tx = await contract.createEvent(
-        eventData.name,
-        eventData.date,
-        eventData.venue,
-        priceInWei,
-        eventData.totalTickets
-      );
-
-      console.log('Transaction submitted:', tx.hash);
-
-      // Wait for the transaction to be mined
-      const receipt = await tx.wait();
-      console.log('Transaction mined:', receipt);
-
-      contract.on("EventCreated", (eventId, name, creator) => {
-        alert('Event created successfully on the blockchain!');
-        console.log('Event ID:', eventId.toString());
-        console.log('Event Name:', name);
-        console.log('Event Creator:', creator);
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
-      
+
+      const result = await response.json();
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || 'Failed to create the event');
+      }
+
+      alert('Event created successfully!');
     } catch (error) {
       console.error('Error creating event:', error);
-      alert('Failed to create the event. See console for details.');
+      alert(error?.message || 'Failed to create the event. See console for details.');
     }
   };
 

@@ -16,7 +16,7 @@ export const WalletProvider = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [networkId, setNetworkId] = useState(null);
 
-  const EXPECTED_CHAIN_ID = 43114; // Avalanche Mainnet
+  const EXPECTED_CHAIN_ID = Number(import.meta.env.VITE_EXPECTED_CHAIN_ID || 0) || null;
 
   // Check wallet connection on mount
   useEffect(() => {
