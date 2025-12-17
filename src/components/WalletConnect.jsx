@@ -1,29 +1,25 @@
 import React from 'react';
-import { Button, Text, HStack, Avatar, useToast } from '@chakra-ui/react';
+import { Button, Text, HStack, Avatar } from '@chakra-ui/react';
 import { useWeb3 } from '../context/Web3Context';
+import { toaster } from '../utils/toaster.js';
 
 export const WalletConnect = () => {
   const { account, isConnected, connectWallet, isLoading } = useWeb3();
-  const toast = useToast();
 
   const handleConnect = async () => {
     try {
       await connectWallet();
-      toast({
+      toaster.create({
         title: 'Wallet connected',
         description: 'Your wallet has been connected successfully!',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
+        type: 'success',
       });
     } catch (error) {
       console.error('Error connecting wallet:', error);
-      toast({
+      toaster.create({
         title: 'Error connecting wallet',
         description: error.message,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
+        type: 'error',
       });
     }
   };

@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { ChakraProvider, createSystem, defaultConfig, Toaster } from '@chakra-ui/react';
+import { toaster } from './utils/toaster.js';
 import { Web3Provider } from './context/Web3Context.jsx';
 import Home from './pages/Home';
 import Discover from './pages/Discover';
@@ -94,22 +95,21 @@ const router = createBrowserRouter([
   },
 ]);
 
-// Extend the theme
-const theme = extendTheme({
-  styles: {
-    global: {
-      body: {
-        bg: 'gray.50',
-      },
+// Create system with custom global styles
+const system = createSystem(defaultConfig, {
+  globalCss: {
+    body: {
+      bg: 'gray.50',
     },
   },
 });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={system}>
       <Web3Provider>
         <RouterProvider router={router} />
+        <Toaster toaster={toaster} />
       </Web3Provider>
     </ChakraProvider>
   </React.StrictMode>
