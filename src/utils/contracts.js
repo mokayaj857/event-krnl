@@ -9,33 +9,58 @@ const AVARA_CORE_ADDRESS = import.meta.env.VITE_AVARA_CORE_ADDRESS || '';
 const TICKET_NFT_ADDRESS = import.meta.env.VITE_TICKET_NFT_ADDRESS || '';
 const POAP_NFT_ADDRESS = import.meta.env.VITE_POAP_NFT_ADDRESS || '';
 
+export const resolveContractAddresses = (overrides = {}) => {
+  return {
+    AVARA_CORE: overrides?.AVARA_CORE ?? overrides?.avaraCore ?? AVARA_CORE_ADDRESS,
+    TICKET_NFT: overrides?.TICKET_NFT ?? overrides?.ticketNFT ?? TICKET_NFT_ADDRESS,
+    POAP_NFT: overrides?.POAP_NFT ?? overrides?.poapNFT ?? POAP_NFT_ADDRESS,
+  };
+};
+
+const assertAddressesConfigured = (addresses) => {
+  const missing = [];
+  if (!addresses?.AVARA_CORE) missing.push('AVARA_CORE');
+  if (!addresses?.TICKET_NFT) missing.push('TICKET_NFT');
+  if (!addresses?.POAP_NFT) missing.push('POAP_NFT');
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing contract address(es): ${missing.join(', ')}. ` +
+        `Set VITE_AVARA_CORE_ADDRESS / VITE_TICKET_NFT_ADDRESS / VITE_POAP_NFT_ADDRESS ` +
+        `or provide them via /api/contracts/config.`
+    );
+  }
+};
+
 /**
  * Get contract instances
  * @param {ethers.BrowserProvider} provider - Ethers provider
  * @param {ethers.Signer} signer - Ethers signer (optional, for write operations)
  * @returns {Object} Contract instances
  */
-export const getContracts = (provider, signer = null) => {
+export const getContracts = (provider, signer = null, addressOverrides = null) => {
   if (!provider) {
     throw new Error('Provider is required');
   }
 
+  const addresses = resolveContractAddresses(addressOverrides || {});
+  assertAddressesConfigured(addresses);
+
   const contractProvider = signer || provider;
 
   const avaraCore = new ethers.Contract(
-    AVARA_CORE_ADDRESS,
+    addresses.AVARA_CORE,
     AvaraCoreABI,
     contractProvider
   );
 
   const ticketNFT = new ethers.Contract(
-    TICKET_NFT_ADDRESS,
+    addresses.TICKET_NFT,
     TicketNFTABI,
     contractProvider
   );
 
   const poapNFT = new ethers.Contract(
-    POAP_NFT_ADDRESS,
+    addresses.POAP_NFT,
     POAPNFTABI,
     contractProvider
   );
@@ -343,4 +368,3 @@ export const CONTRACT_ADDRESSES = {
   TICKET_NFT: TICKET_NFT_ADDRESS,
   POAP_NFT: POAP_NFT_ADDRESS,
 };
-
