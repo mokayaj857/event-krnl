@@ -20,7 +20,7 @@ contract TicketNFT is ERC721, ERC721URIStorage, Ownable {
         _;
     }
 
-    constructor(address _core) ERC721("Avara Ticket", "AVT") {
+    constructor(address _core) ERC721("Avara Ticket", "AVT") Ownable(_core) {
         core = _core;
     }
 
@@ -54,10 +54,6 @@ contract TicketNFT is ERC721, ERC721URIStorage, Ownable {
         _burn(tokenId);
     }
 
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-        super._burn(tokenId);
-    }
-
     function tokenURI(uint256 tokenId)
         public
         view
@@ -66,7 +62,7 @@ contract TicketNFT is ERC721, ERC721URIStorage, Ownable {
     {
         return super.tokenURI(tokenId);
     }
-    
+
     function supportsInterface(bytes4 interfaceId)
         public
         view

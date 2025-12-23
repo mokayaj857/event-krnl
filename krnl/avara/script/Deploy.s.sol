@@ -6,10 +6,10 @@ import {AvaraCore} from "../contracts/avara.sol";
 
 contract DeployScript is Script {
     function run() external {
-        // Get private key from environment
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address deployer = vm.addr(deployerPrivateKey);
-        
+        vm.startBroadcast();
+
+        address deployer = tx.origin;
+
         // Get KRNL signer or use deployer as fallback
         address krnlSigner;
         try vm.envAddress("KRNL_SIGNER") returns (address signer) {
@@ -18,9 +18,7 @@ contract DeployScript is Script {
             krnlSigner = deployer;
             console.log("KRNL_SIGNER not set, using deployer address");
         }
-        
-        vm.startBroadcast(deployerPrivateKey);
-        
+
         console.log("Deploying AvaraCore...");
         console.log("Deployer:", deployer);
         console.log("KRNL Signer:", krnlSigner);
