@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
 import { WalletProvider } from './contexts/WalletContext';
 import Home from './pages/Home';
@@ -25,95 +25,39 @@ import WaitlistPage from './pages/WaitingList';
 import QuantumTicketResale from './pages/QuantamTicketResale';
 import AvaraContractExample from './components/AvaraContractExample';
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Layout><Home /></Layout>,
-  },
-  // {
-  //   path: "discover",
-  //   element: <Layout><Discover /></Layout>,
-  // },
-  {
-    path: "testimonials",
-    element: <Layout><Testimonials /></Layout>,
-  },
-  {
-    path: "qrcode",
-    element: <Layout><Qrcode /></Layout>,
-  },
-  {
-    path: "ticket",
-    element: <Layout><Ticket /></Layout>,
-  },
-  {
-    path: "teams",
-    element: <Layout><Teams /></Layout>,
-  },
-
-  {
-    path: "hero",
-    element: <Layout><Hero /></Layout>,
-  },
-  {
-    path: "event",
-    element: <Layout><EventList /></Layout>,
-  },
-  {
-    path: "mint",
-    element: <Layout><MintNFT /></Layout>,
-  },
-  
-  {
-    path: "event-details",
-    element: <Layout><EventDetails /></Layout>,
-  },
-  {
-    path: "Myevent",
-    element: <Layout><Myevent /></Layout>,
-  },
-  {
-    path: "chatbit",
-    element: <Chatbit />,
-  },
-
-  {
-    path: "waiting",
-    element: <Layout><WaitlistPage /></Layout>
-  },
-
-  {
-    path: "resell",
-    element: <Layout><QuantumTicketResale /></Layout>
-  },
-
-  {
-    path: "profile",
-    element: <Layout><Profile /></Layout>
-  },
-
-  {
-    path: "event-dashboard/:eventId",
-    element: <Layout><EventDashboard /></Layout>
-  },
-
-  {
-    path: "contracts",
-    element: <Layout><AvaraContractExample /></Layout>
-  },
-
-  {
-    path: "*",
-    element: <Footer />,
-  },
-]);
+// App component that wraps RouterProvider with providers
+const App = () => {
+  return (
+    <ChakraProvider value={defaultSystem}>
+      <WalletProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout><Home /></Layout>} />
+            <Route path="testimonials" element={<Layout><Testimonials /></Layout>} />
+            <Route path="qrcode" element={<Layout><Qrcode /></Layout>} />
+            <Route path="ticket" element={<Layout><Ticket /></Layout>} />
+            <Route path="teams" element={<Layout><Teams /></Layout>} />
+            <Route path="hero" element={<Layout><Hero /></Layout>} />
+            <Route path="event" element={<Layout><EventList /></Layout>} />
+            <Route path="mint" element={<Layout><MintNFT /></Layout>} />
+            <Route path="event-details" element={<Layout><EventDetails /></Layout>} />
+            <Route path="Myevent" element={<Layout><Myevent /></Layout>} />
+            <Route path="chatbit" element={<Layout><Chatbit /></Layout>} />
+            <Route path="waiting" element={<Layout><WaitlistPage /></Layout>} />
+            <Route path="resell" element={<Layout><QuantumTicketResale /></Layout>} />
+            <Route path="profile" element={<Layout><Profile /></Layout>} />
+            <Route path="event-dashboard/:eventId" element={<Layout><EventDashboard /></Layout>} />
+            <Route path="contracts" element={<Layout><AvaraContractExample /></Layout>} />
+            <Route path="*" element={<Layout><Footer /></Layout>} />
+          </Routes>
+        </BrowserRouter>
+      </WalletProvider>
+    </ChakraProvider>
+  );
+};
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ChakraProvider value={defaultSystem}>
-      <WalletProvider>
-        <RouterProvider router={router} />
-      </WalletProvider>
-    </ChakraProvider>
+    <App />
   </React.StrictMode>
 );

@@ -20,7 +20,7 @@ const CONTRACT_ADDRESS = import.meta.env.VITE_TICKET_NFT_ADDRESS || "";
 
 const Ticket = () => {
   const { walletAddress, isConnecting, connectWallet, isConnected } = useWallet();
-  const { contracts, provider } = useAvaraContracts();
+  const { contracts, provider, isReady } = useAvaraContracts();
   
   // UI States
   const [isVisible, setIsVisible] = useState(false);
@@ -36,16 +36,17 @@ const Ticket = () => {
   }, []);
 
   useEffect(() => {
-    if (isConnected && walletAddress) {
+    if (isConnected && walletAddress && isReady && contracts?.ticketNFT && provider) {
       fetchUserTickets();
     } else {
       setUserTickets([]);
     }
-  }, [isConnected, walletAddress]);
+  }, [isConnected, walletAddress, isReady, contracts, provider]);
 
   const fetchUserTickets = async () => {
     try {
       setIsLoading(true);
+      setError(null);
 
       if (!walletAddress) {
         setUserTickets([]);
@@ -53,7 +54,10 @@ const Ticket = () => {
       }
 
       if (!contracts?.ticketNFT || !provider) {
-        throw new Error('Contracts are not initialized. Please connect your wallet.');
+        // Don't throw error, just return - contracts might still be initializing
+        console.log('Contracts not ready yet, waiting...');
+        setUserTickets([]);
+        return;
       }
 
       const ticketNFT = contracts.ticketNFT;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { useWallet } from '../contexts/WalletContext';
+import { useWallet, getEthereumProvider, safeAddListener, safeRemoveListener } from '../contexts/WalletContext';
 import {
   getContracts,
   getContractsWithSigner,
@@ -35,13 +35,14 @@ export const useAvaraContracts = () => {
   // Initialize provider and contracts
   useEffect(() => {
     const initContracts = async () => {
-      if (typeof window.ethereum === 'undefined') {
-        setError('MetaMask is not installed');
+      const ethereumProvider = getEthereumProvider();
+      if (!ethereumProvider) {
+        setError('MetaMask or another Web3 wallet is not installed');
         return;
       }
 
       try {
-        const browserProvider = new ethers.BrowserProvider(window.ethereum);
+        const browserProvider = new ethers.BrowserProvider(ethereumProvider);
         setProvider(browserProvider);
 
         // Get read-only contracts
@@ -64,15 +65,16 @@ export const useAvaraContracts = () => {
     initContracts();
 
     // Listen for account changes
-    if (window.ethereum) {
+    const ethereumProvider = getEthereumProvider();
+    if (ethereumProvider) {
       const handleAccountsChanged = async () => {
         await initContracts();
       };
 
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      safeAddListener(ethereumProvider, 'accountsChanged', handleAccountsChanged);
 
       return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        safeRemoveListener(ethereumProvider, 'accountsChanged', handleAccountsChanged);
       };
     }
   }, [isConnected, walletAddress]);

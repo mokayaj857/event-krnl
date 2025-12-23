@@ -75,3 +75,4 @@ If you encounter issues:
 - Verify your RPC URL is correct and accessible
 - Check that your private key is properly formatted (with or without 0x prefix)
 
+
