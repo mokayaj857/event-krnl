@@ -6,13 +6,33 @@ import { WalletProvider } from './contexts/WalletContext';
 
 // Suppress "Cannot redefine property: ethereum" errors from browser extensions
 if (typeof window !== 'undefined') {
-  // Suppress console errors
+  // Intercept Object.defineProperty to prevent the error from being thrown
+  const originalDefineProperty = Object.defineProperty;
+  Object.defineProperty = function(obj, prop, descriptor) {
+    // If trying to define 'ethereum' on window and it already exists, allow it silently
+    if (obj === window && prop === 'ethereum' && window.ethereum) {
+      try {
+        return originalDefineProperty.call(this, obj, prop, descriptor);
+      } catch (e) {
+        // Silently ignore - browser extensions are conflicting
+        return obj;
+      }
+    }
+    return originalDefineProperty.call(this, obj, prop, descriptor);
+  };
+
+  // Suppress console errors - check all arguments for the error message
   const originalError = console.error;
   console.error = (...args) => {
-    const message = args[0]?.toString() || '';
-    if (message.includes('Cannot redefine property: ethereum') || 
-        message.includes('evmAsk.js') ||
-        args.some(arg => arg?.toString?.()?.includes('Cannot redefine property: ethereum'))) {
+    // Check all arguments for the error message
+    const hasEthereumError = args.some(arg => {
+      const str = String(arg || '');
+      return str.includes('Cannot redefine property: ethereum') || 
+             str.includes('evmAsk.js') ||
+             (arg && typeof arg === 'object' && arg.message && arg.message.includes('Cannot redefine property: ethereum'));
+    });
+    
+    if (hasEthereumError) {
       // Silently ignore this error - it's from browser extensions conflicting
       return;
     }
@@ -20,24 +40,25 @@ if (typeof window !== 'undefined') {
   };
 
   // Suppress uncaught errors from browser extensions
-  const originalErrorHandler = window.onerror;
-  window.onerror = (message, source, lineno, colno, error) => {
-    if (message?.toString().includes('Cannot redefine property: ethereum') ||
-        source?.includes('evmAsk.js')) {
-      // Silently ignore - this is from browser extensions
+  window.addEventListener('error', (event) => {
+    if (event.message && (
+        event.message.includes('Cannot redefine property: ethereum') ||
+        event.filename?.includes('evmAsk.js')
+      )) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
       return true;
     }
-    if (originalErrorHandler) {
-      return originalErrorHandler(message, source, lineno, colno, error);
-    }
-    return false;
-  };
+  }, true);
 
   // Also catch unhandled promise rejections that might contain this error
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
-    if (reason?.message?.includes('Cannot redefine property: ethereum') ||
-        reason?.toString?.()?.includes('Cannot redefine property: ethereum')) {
+    if (reason && (
+        String(reason).includes('Cannot redefine property: ethereum') ||
+        (reason.message && reason.message.includes('Cannot redefine property: ethereum'))
+      )) {
       event.preventDefault();
       return;
     }

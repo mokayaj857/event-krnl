@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Ticket as TicketIcon, Calendar, MapPin, User, QrCode, Download, AlertCircle, Loader, Eye, DollarSign, MessageSquare } from 'lucide-react';
-import { useWallet } from '../contexts/WalletContext';
+import { useWallet, getEthereumProvider } from '../contexts/WalletContext';
 import { useAvaraContracts } from '../hooks/useAvaraContracts';
 
 const AVALANCHE_MAINNET_PARAMS = {
@@ -63,11 +63,85 @@ const Ticket = () => {
       const ticketNFT = contracts.ticketNFT;
 
       // TicketNFT is not enumerable, so we derive owned tokenIds from Transfer logs.
-      const fromBlock = Number(import.meta.env.VITE_TICKET_DEPLOY_BLOCK || 0);
-      const currentBlock = await provider.getBlockNumber();
+      // Check RPC availability first and get current block
+      let currentBlock;
+      try {
+        currentBlock = await Promise.race([
+          provider.getBlockNumber(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('RPC timeout')), 15000)
+          )
+        ]);
+      } catch (rpcError) {
+        const errorCode = rpcError?.code;
+        const errorMsg = rpcError?.message?.toLowerCase() || '';
+        const errorData = rpcError?.data || {};
+        
+        if (errorCode === -32002 || 
+            errorCode === -32603 ||
+            errorMsg.includes('rpc') ||
+            errorMsg.includes('endpoint') ||
+            errorMsg.includes('timeout') ||
+            errorMsg.includes('522') ||
+            errorData?.httpStatus === 522) {
+          // Check if we're on a local network
+          const ethereumProvider = getEthereumProvider();
+          let chainId = null;
+          try {
+            if (ethereumProvider) {
+              const chainIdHex = await ethereumProvider.request({ method: 'eth_chainId' });
+              chainId = parseInt(chainIdHex, 16);
+            }
+          } catch (e) {
+            // Ignore errors getting chain ID
+          }
+          
+          const isLocalNetwork = chainId === 31337 || chainId === 1337;
+          const errorMessage = isLocalNetwork
+            ? 'Local network RPC is unavailable. Please ensure your local Hardhat/Anvil node is running on http://localhost:8545, or switch to a public network like Avalanche Mainnet.'
+            : 'RPC endpoint is unavailable. The network RPC is timing out or unreachable. Please switch to a different network (e.g., Avalanche Mainnet) or try again later.';
+          
+          throw new Error(errorMessage);
+        }
+        throw rpcError;
+      }
 
-      const receivedLogs = await ticketNFT.queryFilter(ticketNFT.filters.Transfer(null, walletAddress), fromBlock, currentBlock);
-      const sentLogs = await ticketNFT.queryFilter(ticketNFT.filters.Transfer(walletAddress, null), fromBlock, currentBlock);
+      // Calculate a reasonable fromBlock to avoid querying too many blocks
+      // RPC providers typically limit queries to 2048 blocks
+      const MAX_BLOCKS_PER_QUERY = 2048;
+      const deployBlock = Number(import.meta.env.VITE_TICKET_DEPLOY_BLOCK || 0);
+      
+      // Use deploy block if set, otherwise use a recent block range
+      // If deploy block is 0 or too far back, use last MAX_BLOCKS_PER_QUERY blocks
+      let fromBlock = deployBlock;
+      if (deployBlock === 0 || (currentBlock - deployBlock) > MAX_BLOCKS_PER_QUERY) {
+        fromBlock = Math.max(0, currentBlock - MAX_BLOCKS_PER_QUERY);
+      }
+
+      // Query logs in chunks if needed
+      const receivedLogs = [];
+      const sentLogs = [];
+      
+      // Query in chunks to respect RPC limits
+      const queryChunks = [];
+      for (let start = fromBlock; start <= currentBlock; start += MAX_BLOCKS_PER_QUERY) {
+        const end = Math.min(start + MAX_BLOCKS_PER_QUERY - 1, currentBlock);
+        queryChunks.push({ start, end });
+      }
+
+      // Query all chunks in parallel
+      const logPromises = queryChunks.flatMap(({ start, end }) => [
+        ticketNFT.queryFilter(ticketNFT.filters.Transfer(null, walletAddress), start, end),
+        ticketNFT.queryFilter(ticketNFT.filters.Transfer(walletAddress, null), start, end)
+      ]);
+
+      const logResults = await Promise.all(logPromises);
+      
+      // Combine results
+      for (let i = 0; i < logResults.length; i += 2) {
+        receivedLogs.push(...logResults[i]);
+        sentLogs.push(...logResults[i + 1]);
+      }
 
       const ownership = new Map();
 
@@ -157,7 +231,38 @@ const Ticket = () => {
 
     } catch (error) {
       console.error("Error fetching tickets:", error);
-      setError("Failed to fetch your tickets. Please try again.");
+      
+      // Provide user-friendly error messages
+      const errorCode = error?.code;
+      const errorMsg = error?.message?.toLowerCase() || '';
+      const errorData = error?.data || {};
+      
+      let errorMessage = "Failed to fetch your tickets. Please try again.";
+      
+      // RPC endpoint errors
+      if (errorCode === -32002 || 
+          errorCode === -32603 ||
+          errorMsg.includes('rpc endpoint') ||
+          errorMsg.includes('rpc endpoint is unavailable') ||
+          errorMsg.includes('timeout') ||
+          errorMsg.includes('522') ||
+          errorData?.httpStatus === 522) {
+        errorMessage = "Network RPC endpoint is unavailable or timing out. Please switch to a different network (e.g., Avalanche Mainnet) in your wallet, or try again later.";
+      }
+      // Network/Chain ID errors
+      else if (errorCode === 4902 || 
+               errorMsg.includes('unrecognized chain id') ||
+               errorMsg.includes('chain id')) {
+        errorMessage = "Unrecognized network. Please switch to a supported network in your wallet.";
+      }
+      // Use the error message if it's user-friendly
+      else if (error?.message && 
+               (error.message.includes('RPC endpoint') || 
+                error.message.includes('Please switch'))) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
