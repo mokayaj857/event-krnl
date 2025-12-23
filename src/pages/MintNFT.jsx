@@ -19,8 +19,9 @@ import {
   ChevronUp
 } from 'lucide-react';
 import CommentRatingSection from '../components/CommentRatingSection';
-import { useWallet } from '../contexts/WalletContext';
+import { useWallet, getEthereumProvider } from '../contexts/WalletContext';
 import { useAvaraContracts } from '../hooks/useAvaraContracts';
+import { ethers } from 'ethers';
 
 const QuantumMintNFT = () => {
   const [searchParams] = useSearchParams();
@@ -221,52 +222,123 @@ const QuantumMintNFT = () => {
         throw new Error('No event selected');
       }
 
-      if (window.ethereum) {
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        const expectedChainIdNum = Number(import.meta.env.VITE_EXPECTED_CHAIN_ID || 0) || null;
-        const expectedChainIdHex = expectedChainIdNum ? `0x${expectedChainIdNum.toString(16)}` : null;
+      const ethereumProvider = getEthereumProvider();
+      if (ethereumProvider) {
+        try {
+          const chainId = await ethereumProvider.request({ method: 'eth_chainId' });
+          const expectedChainIdNum = Number(import.meta.env.VITE_EXPECTED_CHAIN_ID || 0) || null;
+          const expectedChainIdHex = expectedChainIdNum ? `0x${expectedChainIdNum.toString(16)}` : null;
 
-        if (expectedChainIdHex && chainId?.toLowerCase?.() !== expectedChainIdHex.toLowerCase()) {
-          setMintingStatus('Please switch to the correct network...');
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: expectedChainIdHex }],
-            });
-          } catch (switchError) {
-            if (switchError?.code === 4902) {
-              const rpcUrls = (import.meta.env.VITE_CHAIN_RPC_URLS || '')
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean);
-
-              const blockExplorerUrls = (import.meta.env.VITE_CHAIN_BLOCK_EXPLORER_URLS || '')
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean);
-
-              const chainName = import.meta.env.VITE_CHAIN_NAME || 'Custom Network';
-              const nativeCurrency = {
-                name: import.meta.env.VITE_CHAIN_NATIVE_NAME || 'ETH',
-                symbol: import.meta.env.VITE_CHAIN_NATIVE_SYMBOL || 'ETH',
-                decimals: 18,
-              };
-
-              await window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: expectedChainIdHex,
-                  chainName,
-                  nativeCurrency,
-                  rpcUrls,
-                  blockExplorerUrls,
-                }],
+          if (expectedChainIdHex && chainId?.toLowerCase?.() !== expectedChainIdHex.toLowerCase()) {
+            setMintingStatus('Please switch to the correct network...');
+            try {
+              await ethereumProvider.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: expectedChainIdHex }],
               });
-            } else {
-              throw switchError;
+            } catch (switchError) {
+              if (switchError?.code === 4902 || switchError?.message?.includes('Unrecognized chain ID')) {
+                const rpcUrls = (import.meta.env.VITE_CHAIN_RPC_URLS || '')
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter(Boolean);
+
+                const blockExplorerUrls = (import.meta.env.VITE_CHAIN_BLOCK_EXPLORER_URLS || '')
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter(Boolean);
+
+                const chainName = import.meta.env.VITE_CHAIN_NAME || 'Custom Network';
+                const nativeCurrency = {
+                  name: import.meta.env.VITE_CHAIN_NATIVE_NAME || 'ETH',
+                  symbol: import.meta.env.VITE_CHAIN_NATIVE_SYMBOL || 'ETH',
+                  decimals: 18,
+                };
+
+                if (rpcUrls.length === 0) {
+                  throw new Error(`Network with Chain ID ${expectedChainIdNum} (${expectedChainIdHex}) is not configured. Please add it manually to your wallet or configure VITE_CHAIN_RPC_URLS in your environment.`);
+                }
+
+                await ethereumProvider.request({
+                  method: 'wallet_addEthereumChain',
+                  params: [{
+                    chainId: expectedChainIdHex,
+                    chainName,
+                    nativeCurrency,
+                    rpcUrls,
+                    blockExplorerUrls,
+                  }],
+                });
+              } else if (switchError?.code === 4001) {
+                throw new Error('Network switch was rejected. Please switch networks manually and try again.');
+              } else {
+                throw switchError;
+              }
             }
           }
+        } catch (networkError) {
+          console.error('Network error:', networkError);
+          throw new Error(networkError.message || 'Failed to configure network. Please check your wallet connection.');
         }
+      }
+
+      // Check RPC endpoint availability before proceeding
+      setMintingStatus('Checking network connection...');
+      try {
+        const ethereumProvider = getEthereumProvider();
+        if (ethereumProvider) {
+          const provider = new ethers.BrowserProvider(ethereumProvider);
+          // Test RPC connection with a simple call
+          await Promise.race([
+            provider.getBlockNumber(),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('RPC timeout')), 10000)
+            )
+          ]);
+        }
+      } catch (rpcError) {
+        const errorMsg = rpcError?.message?.toLowerCase() || '';
+        const errorCode = rpcError?.code;
+        
+        if (errorMsg.includes('rpc') || 
+            errorMsg.includes('endpoint') || 
+            errorMsg.includes('timeout') ||
+            errorCode === -32002) {
+          
+          // Get current chain ID to provide better error message
+          let currentChainId = 'unknown';
+          let chainName = 'current network';
+          try {
+            const ethereumProvider = getEthereumProvider();
+            if (ethereumProvider) {
+              const chainIdHex = await ethereumProvider.request({ method: 'eth_chainId' });
+              const chainIdNum = parseInt(chainIdHex, 16);
+              currentChainId = chainIdNum.toString();
+              
+              // Common chain IDs
+              const chainNames = {
+                '1': 'Ethereum Mainnet',
+                '31337': 'Local Hardhat Network',
+                '43114': 'Avalanche Mainnet',
+                '43113': 'Avalanche Fuji Testnet',
+                '11155111': 'Sepolia Testnet',
+                '137': 'Polygon',
+              };
+              chainName = chainNames[currentChainId] || `Chain ID ${currentChainId}`;
+            }
+          } catch (e) {
+            // Ignore errors getting chain ID
+          }
+          
+          // Suggest switching to Avalanche if on local/unavailable network
+          const isLocalNetwork = currentChainId === '31337' || currentChainId === '1337';
+          const suggestion = isLocalNetwork 
+            ? ' Please switch to Avalanche Mainnet (Chain ID: 43114) in your wallet, or ensure your local node is running.'
+            : ` The RPC endpoint for ${chainName} (Chain ID: ${currentChainId}) is unavailable. Please switch to a different network in your wallet.`;
+          
+          throw new Error(`RPC endpoint is unavailable.${suggestion}`);
+        }
+        // If it's not an RPC error, continue - might be a different issue
       }
 
       setMintingStatus('Requesting KRNL mint proof...');
@@ -311,7 +383,54 @@ const QuantumMintNFT = () => {
 
     } catch (error) {
       console.error('Error minting NFT:', error);
-      setError(error.message || 'Error minting NFT. Please try again.');
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Error minting NFT. Please try again.';
+      
+      if (error?.message) {
+        const errorMsg = error.message.toLowerCase();
+        const errorCode = error?.code;
+        const errorData = error?.data || {};
+        
+        // RPC endpoint errors
+        if (errorCode === -32002 || 
+            errorMsg.includes('rpc endpoint') ||
+            errorMsg.includes('rpc endpoint not found') ||
+            errorMsg.includes('rpc endpoint returned too many errors') ||
+            errorMsg.includes('rpc endpoint is unavailable') ||
+            errorData?.httpStatus === 522) {
+          // Preserve detailed error message if it contains suggestions
+          if (error.message && (error.message.includes('Please switch') || error.message.includes('Chain ID'))) {
+            errorMessage = error.message;
+          } else {
+            errorMessage = 'RPC endpoint is unavailable. Please switch to Avalanche Mainnet (Chain ID: 43114) or ensure your network RPC is accessible.';
+          }
+        } 
+        // Network/Chain ID errors
+        else if (errorMsg.includes('unrecognized chain id') || 
+                 errorMsg.includes('chain id') ||
+                 errorCode === 4902) {
+          errorMessage = 'Unrecognized network. Please switch to the correct network in your wallet and try again.';
+        } 
+        // User rejection
+        else if (errorMsg.includes('rejected') || 
+                 errorMsg.includes('user rejected') ||
+                 errorCode === 4001) {
+          errorMessage = 'Transaction was rejected. Please approve the transaction to continue.';
+        } 
+        // Insufficient funds
+        else if (errorMsg.includes('insufficient funds') || 
+                 errorMsg.includes('insufficient balance') ||
+                 errorMsg.includes('gas')) {
+          errorMessage = 'Insufficient funds for gas. Please ensure you have enough tokens to cover the transaction and gas fees.';
+        } 
+        // Use the error message if it's user-friendly
+        else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
       setMintingStatus(null);
     } finally {
       setIsLoading(false);

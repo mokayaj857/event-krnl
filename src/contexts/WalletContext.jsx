@@ -36,6 +36,11 @@ export const getEthereumProvider = () => {
   } catch (error) {
     // Handle cases where browser extensions are conflicting
     // (e.g., "Cannot redefine property: ethereum")
+    // Suppress this specific error as it's from browser extensions, not our code
+    if (error.message && error.message.includes('Cannot redefine property: ethereum')) {
+      // Silently handle - this is from browser extensions conflicting
+      return null;
+    }
     console.warn('Error accessing ethereum provider:', error);
     return null;
   }

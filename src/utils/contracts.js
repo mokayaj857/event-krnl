@@ -118,6 +118,42 @@ export const mintTicketWithKrnl = async (
     return tx;
   } catch (error) {
     console.error('Error minting ticket:', error);
+    
+    // Provide user-friendly error messages
+    const errorCode = error?.code;
+    const errorMessage = error?.message?.toLowerCase() || '';
+    const errorData = error?.data || {};
+    
+    // RPC endpoint errors
+    if (errorCode === -32002 || 
+        errorMessage.includes('rpc endpoint') ||
+        errorMessage.includes('rpc endpoint not found') ||
+        errorMessage.includes('rpc endpoint returned too many errors') ||
+        errorData?.httpStatus === 522) {
+      throw new Error('RPC endpoint is unavailable. Please check your network connection or switch to a different network. If using a local node, ensure it is running.');
+    }
+    
+    // Network/Chain ID errors
+    if (errorCode === 4902 || 
+        errorMessage.includes('unrecognized chain id') ||
+        errorMessage.includes('chain id')) {
+      throw new Error('Unrecognized network. Please add this network to your wallet or switch to a supported network.');
+    }
+    
+    // User rejection
+    if (errorCode === 4001 || 
+        errorMessage.includes('user rejected') ||
+        errorMessage.includes('rejected')) {
+      throw new Error('Transaction was rejected. Please approve the transaction to continue.');
+    }
+    
+    // Insufficient funds
+    if (errorMessage.includes('insufficient funds') ||
+        errorMessage.includes('insufficient balance')) {
+      throw new Error('Insufficient funds. Please ensure you have enough tokens to cover the transaction and gas fees.');
+    }
+    
+    // Re-throw with original error if no specific handling
     throw error;
   }
 };

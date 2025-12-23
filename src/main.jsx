@@ -3,6 +3,46 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
 import { WalletProvider } from './contexts/WalletContext';
+
+// Suppress "Cannot redefine property: ethereum" errors from browser extensions
+if (typeof window !== 'undefined') {
+  // Suppress console errors
+  const originalError = console.error;
+  console.error = (...args) => {
+    const message = args[0]?.toString() || '';
+    if (message.includes('Cannot redefine property: ethereum') || 
+        message.includes('evmAsk.js') ||
+        args.some(arg => arg?.toString?.()?.includes('Cannot redefine property: ethereum'))) {
+      // Silently ignore this error - it's from browser extensions conflicting
+      return;
+    }
+    originalError.apply(console, args);
+  };
+
+  // Suppress uncaught errors from browser extensions
+  const originalErrorHandler = window.onerror;
+  window.onerror = (message, source, lineno, colno, error) => {
+    if (message?.toString().includes('Cannot redefine property: ethereum') ||
+        source?.includes('evmAsk.js')) {
+      // Silently ignore - this is from browser extensions
+      return true;
+    }
+    if (originalErrorHandler) {
+      return originalErrorHandler(message, source, lineno, colno, error);
+    }
+    return false;
+  };
+
+  // Also catch unhandled promise rejections that might contain this error
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event.reason;
+    if (reason?.message?.includes('Cannot redefine property: ethereum') ||
+        reason?.toString?.()?.includes('Cannot redefine property: ethereum')) {
+      event.preventDefault();
+      return;
+    }
+  });
+}
 import Home from './pages/Home';
 import Discover from './pages/Discover';
 import Testimonials from './pages/Testimonials';
