@@ -148,11 +148,3 @@ By bridging USSD, mobile money, and on-chain verification through KRNL, Avara en
 
 ---
 
-If you want, I can also:
-
-* Rename the repo + badges fully to **Avara**
-* Write a **KRNL grant submission version**
-* Create a **short README-lite for hackathons**
-* Add a **system architecture diagram section**
-
-Just say the word.
