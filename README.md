@@ -114,7 +114,7 @@ npx hardhat run scripts/deploy.js --network <network>
 ## 🎥 Project Demo
 
 <p align="center">
-  <a href="https://drive.google.com/file/d/1Z5Q1POLNw9g6Vq8ph7jJq1FduJROfza0/view?usp=sharing" target="_blank">
+  <a href="https://www.youtube.com/playlist?list=PLKw819e6--6wuT4hH4dJPO4ckFmUeyure" target="_blank">
     <img src="https://img.icons8.com/clouds/500/video-playlist.png" alt="Watch Project Video" width="60%" />
   </a>
 </p>
