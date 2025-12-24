@@ -108,8 +108,25 @@ async function initiateStkPush(phoneNumber, amount, metadata = {}) {
   };
 
   const res = await collection.mpesaStkPush(payload);
-  console.log('IntaSend STK response:', res);
-  return res;
+  
+  // Decode buffer response if needed
+  let parsedRes = res;
+  if (Buffer.isBuffer(res)) {
+    try {
+      parsedRes = JSON.parse(res.toString());
+    } catch (e) {
+      parsedRes = res.toString();
+    }
+  }
+  
+  console.log('IntaSend STK response:', parsedRes);
+  
+  // Check for validation errors
+  if (parsedRes.type === 'validation_error' || parsedRes.error) {
+    throw new Error(`IntaSend validation error: ${JSON.stringify(parsedRes.errors || parsedRes.error)}`);
+  }
+  
+  return parsedRes;
 }
 
 app.post('/ussd', async (req, res) => {
@@ -139,13 +156,31 @@ app.post('/ussd', async (req, res) => {
 5. Mombasa Beach Party (500)
 0. Back`;
       } else if (steps.length === 2) {
-        const event = EVENT_MAP[steps[1]];
-        response = event
-          ? `CON ${event.name}
+        if (steps[1] === '0') {
+          response = `CON Welcome to AVARA
+1. Buy Ticket
+2. My Tickets
+3. Wallet
+4. Events Near Me
+5. Support
+0. Exit`;
+        } else {
+          const event = EVENT_MAP[steps[1]];
+          response = event
+            ? `CON ${event.name}
 Price: ${event.price} KES
 1. Pay with M-Pesa
 0. Cancel`
-          : 'END Invalid option.';
+            : 'END Invalid option.';
+        }
+      } else if (steps.length === 3 && steps[2] === '0') {
+        response = `CON Select Event:
+1. Nairobi Tech Fest (250)
+2. City Concert (350)
+3. Kiambu Expo (150)
+4. Kisumu Music Night (200)
+5. Mombasa Beach Party (500)
+0. Back`;
       } else if (steps.length === 3 && steps[2] === '1') {
         const event = EVENT_MAP[steps[1]];
         if (!event) {
@@ -170,7 +205,15 @@ Price: ${event.price} KES
             response = `END Payment initiated.
 Your Ticket Code: ${ticketCode}`;
           } catch (err) {
-            console.error('Failed to process payment:', err);
+            let errorMsg = err?.message || err?.toString?.() || 'Unknown error';
+            if (Buffer.isBuffer(err)) {
+              try {
+                errorMsg = JSON.parse(err.toString());
+              } catch {
+                errorMsg = err.toString();
+              }
+            }
+            console.error('Failed to process payment:', errorMsg);
             response = 'END Payment failed. Try again.';
           }
         }
@@ -191,6 +234,14 @@ Your Ticket Code: ${ticketCode}`;
 2. Deposit
 3. Withdraw
 0. Back`;
+      } else if (steps[1] === '0') {
+        response = `CON Welcome to AVARA
+1. Buy Ticket
+2. My Tickets
+3. Wallet
+4. Events Near Me
+5. Support
+0. Exit`;
       } else if (steps[1] === '1') {
         response = 'END Your balance is 0 KES';
       } else if (steps[1] === '2') {
@@ -208,14 +259,24 @@ Acc: Your Phone Number`;
 4. Mombasa
 0. Back`;
       } else if (steps.length === 2) {
-        const regionMap = { '1': 'Nairobi', '2': 'Kiambu', '3': 'Kisumu', '4': 'Mombasa' };
-        const region = regionMap[steps[1]];
-
-        if (!region) {
-          response = 'END Invalid region.';
+        if (steps[1] === '0') {
+          response = `CON Welcome to AVARA
+1. Buy Ticket
+2. My Tickets
+3. Wallet
+4. Events Near Me
+5. Support
+0. Exit`;
         } else {
-          const evts = EVENTS[region].map((e) => `${e.name} - ${e.price} KES`).join('\n');
-          response = `END Events in ${region}:\n${evts}`;
+          const regionMap = { '1': 'Nairobi', '2': 'Kiambu', '3': 'Kisumu', '4': 'Mombasa' };
+          const region = regionMap[steps[1]];
+
+          if (!region) {
+            response = 'END Invalid region.';
+          } else {
+            const evts = EVENTS[region].map((e) => `${e.name} - ${e.price} KES`).join('\n');
+            response = `END Events in ${region}:\n${evts}`;
+          }
         }
       }
     } else if (steps[0] === '5') {
@@ -224,6 +285,14 @@ Acc: Your Phone Number`;
 1. Request Call-Back
 2. Report Issue
 0. Back`;
+      } else if (steps[1] === '0') {
+        response = `CON Welcome to AVARA
+1. Buy Ticket
+2. My Tickets
+3. Wallet
+4. Events Near Me
+5. Support
+0. Exit`;
       } else if (steps[1] === '1') {
         response = 'END We will call you shortly.';
       } else if (steps[1] === '2') {
