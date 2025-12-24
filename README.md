@@ -1,9 +1,7 @@
-Below is your **rewritten README**, adapted cleanly to **KRNL**, aligned with everything we discussed above, while keeping it **professional, clear, and grant / hackathon ready**.
-I preserved your structure but refocused the narrative around **KRNL’s modular orchestration**, **NFT tickets**, **POAPs**, and **USSD access**.
 
 ---
 
-# 🎟️ Avara (formerly Eventverse)
+# 🎟️ Avara 
 
 ## 🌍 Overview
 
@@ -111,7 +109,8 @@ npx hardhat run scripts/deploy.js --network <network>
 | John Mokaya     | Frontend & Web3 Integration   |
 
 ---
-
+#### Key Deliverables: 1. **Landing Page Design** <img width="948" alt="Screenshot 2025-01-21 151517" src="https://github.com/user-attachments/assets/786b0fb1-92c5-4433-89bd-6c7282ea8e69" /> 2. **Tickets collection** <img width="950" alt="Screenshot 2025-01-21 161518" src="https://github.com/user-attachments/assets/cd58022e-d42d-4327-b3f6-ec45d496d4d8" /> 3. **Ticket sales** <img width="960" alt="Screenshot 2025-01-21 151643" src="https://github.com/user-attachments/assets/a222522c-71fc-47df-b6f0-a775ed58cd11" /> 4. **Ticket Minting** <img width="959" alt="Screenshot 2025-01-21 151623" src="https://github.com/user-attachments/assets/f773d40b-760f-4021-aaf0-0ea4d87e677e" /> 4. **QR code Intergration** <img width="947" alt="Screenshot 2025-01-21 162251" src="https://github.com/user-attachments/assets/99520049-8a10-4ae3-b538-2e6b0bc5df7b" />
+---
 ## 🎥 Project Demo
 
 <p align="center">
