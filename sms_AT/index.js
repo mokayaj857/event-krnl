@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const { ipKeyGenerator } = require('express-rate-limit');
 const mongoose = require('mongoose');
 const IntaSend = require('intasend-node');
+const africastalking = require('africastalking');
 const connectDB = require('./backend/db');
 
 const app = express();
@@ -62,6 +63,38 @@ const intaSend = new IntaSend(
   process.env.INTASEND_PRIVATE_KEY,
   process.env.INTASEND_ENV !== 'live' // true = sandbox
 );
+
+// Optional SMS client for session summaries; logs and skips if credentials are missing.
+const smsClient = (() => {
+  if (!process.env.AFRICASTALKING_API_KEY || !process.env.AFRICASTALKING_USERNAME) {
+    console.warn('⚠️ Africa\'s Talking SMS disabled: missing AFRICASTALKING_API_KEY or AFRICASTALKING_USERNAME');
+    return null;
+  }
+  return africastalking({
+    apiKey: process.env.AFRICASTALKING_API_KEY,
+    username: process.env.AFRICASTALKING_USERNAME,
+  }).SMS;
+})();
+
+function extractFinalMessage(responseText) {
+  if (!responseText || !responseText.startsWith('END')) return null;
+  return responseText.replace(/^END\s*/, '').trim();
+}
+
+async function sendSessionSms(phoneNumber, message) {
+  if (!smsClient) return;
+  if (!phoneNumber) {
+    console.warn('⚠️ Skipping session SMS: missing phone number');
+    return;
+  }
+
+  try {
+    await smsClient.send({ to: phoneNumber, message });
+    console.log('📩 Sent session SMS to', phoneNumber);
+  } catch (err) {
+    console.error('❌ Failed to send session SMS:', err.message);
+  }
+}
 
 async function initiateStkPush(phoneNumber, amount, metadata = {}) {
   // IntaSend M-Pesa STK push
@@ -203,6 +236,11 @@ Acc: Your Phone Number`;
     }
 
     res.set('Content-Type', 'text/plain');
+    const finalMessage = extractFinalMessage(response);
+    if (finalMessage) {
+      // Send SMS and await to ensure it completes
+      await sendSessionSms(phoneNumber, finalMessage);
+    }
     res.send(response);
   } catch (err) {
     console.error('USSD route error:', err);
