@@ -4,6 +4,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ChakraProvider, createSystem, defaultConfig, Toaster } from '@chakra-ui/react';
 import { toaster } from './utils/toaster.js';
 import { Web3Provider } from './context/Web3Context.jsx';
+import { KRNLProvider } from '@krnl-dev/sdk-react-7702';
+import { PrivyProvider } from './providers/PrivyProvider';
+import { config } from './lib/krnl';
 import Home from './pages/Home';
 import Discover from './pages/Discover';
 import Testimonials from './pages/Testimonials';
@@ -23,6 +26,7 @@ import './index.css';
 import WaitlistPage from './pages/WaitingList';
 import QuantumTicketResale from './pages/QuantamTicketResale';
 import EventManager from './components/events/EventManager';
+import KRNLTestPage from './pages/KRNLTestPage';
 
 const router = createBrowserRouter([
   {
@@ -90,6 +94,10 @@ const router = createBrowserRouter([
     element: <Layout><EventManager /></Layout>
   },
   {
+    path: "test-krnl",
+    element: <Layout><KRNLTestPage /></Layout>
+  },
+  {
     path: "*",
     element: <Footer />,
   },
@@ -107,10 +115,14 @@ const system = createSystem(defaultConfig, {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ChakraProvider value={system}>
-      <Web3Provider>
-        <RouterProvider router={router} />
-        <Toaster toaster={toaster} />
-      </Web3Provider>
+      <PrivyProvider>
+        <Web3Provider>
+          <KRNLProvider config={config}>
+            <RouterProvider router={router} />
+            <Toaster toaster={toaster} />
+          </KRNLProvider>
+        </Web3Provider>
+      </PrivyProvider>
     </ChakraProvider>
   </React.StrictMode>
 );

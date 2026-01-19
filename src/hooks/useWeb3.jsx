@@ -169,6 +169,5 @@ export const useWeb3 = () => {
     provider: getProvider(),
   };
 };
-};
 
 export default useWeb3;

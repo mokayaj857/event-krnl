@@ -176,6 +176,36 @@ Eventverse is a revolutionary blockchain-based ticketing platform engineered to 
 
 
 
+## 🔗 KRNL Integration
+
+Avara now integrates with KRNL Protocol's modular architecture, implementing four composable kernels:
+
+### 🎫 Ticket Kernel
+- NFT-based tickets with metadata (seat, tier, venue, timestamps)
+- Provenance tracking: created → sold → scanned → invalidated
+- QR code and hardware scanner integrations via KRNL API bridge
+- On-chain timestamped and signed by KRNL's decentralized orchestrator
+
+### ✅ Attendance & POAP Kernel
+- POAP-style NFTs upon successful check-in
+- Soulbound or dynamic POAPs based on attendance history
+- Geofenced, device-based, or multi-sensor verification
+- Cryptographically verified attendance proofs
+
+### 🛒 Marketplace Kernel
+- Primary ticket sales and secondary resales
+- Organizer-set rules enforcement (price caps, max transfers, anti-bot)
+- Cross-chain native payments via KRNL
+- Off-chain payment provider support
+
+### ⭐ Reputation Kernel
+- Reputation scores and badges based on POAP history
+- Engagement tracking per organizer, category, or ecosystem-wide
+- Benefits: early access, exclusive drops, VIP tiers
+- AI-powered fraud detection and bot pattern recognition
+
+See [KRNL_INTEGRATION.md](./KRNL_INTEGRATION.md) for detailed documentation.
+
 ## ⛰️ Avalanche Integration
 
 ### 🚀 Why Avalanche?
