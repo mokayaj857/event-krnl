@@ -1,251 +1,199 @@
-# 🎟️ Eventverse.
+
+
+---
+
+# 🎟️ Avara
+
+**Modular Decentralized Event Ticketing & Attendance Infrastructure**
+
+---
 
 ## 🌍 Overview
 
-Eventverse is a revolutionary blockchain-based ticketing platform engineered to combat fraud and inefficiencies in the event ticketing industry. Leveraging the Avalanche blockchain, our platform empowers event organizers to issue tickets as digital tokens, ensuring secure purchases, effortless resales, and QR-code-based authentication.
+**Avara** is a modular, decentralized event ticketing and attendance verification platform built on **KRNL**.
 
-## ✨ Key Features,
+It addresses critical challenges in event management—ticket fraud, fake attendance claims, opaque resale markets, and limited accessibility—by transforming tickets into **verifiable NFT assets** and attendance into **on-chain POAP-style credentials**.
 
-### 🎟️ Decentralized Ticket Minting & Transfer
+Powered by **KRNL’s decentralized orchestration layer**, Avara securely connects blockchain logic with real-world systems such as **QR scanners, USSD, and mobile money**, enabling trustless, transparent, and inclusive event participation.
 
-- Event organizers can mint unique, tamper-proof tickets with embedded event details.
-- Blockchain-backed transparency guarantees authenticity and secure transfers.
+---
 
-### 🤖 AI Assistant
+## ✨ Key Features
 
-- An intelligent chatbot designed to help users navigate the EventVax platform
-- Provides accurate, context-aware answers about ticket purchasing, wallet connections, event creation, and more
-- Offers step-by-step guidance for blockchain interactions and NFT ticket management
-- Features a beautiful floating UI that's accessible throughout the platform
+### 🎟️ Modular NFT Ticketing
 
-### 📲 QR Code Verification
+**(KRNL Registry Kernel)**
 
-- Each ticket is embedded with a unique QR code for instant and tamper-proof validation.
-- Eliminates counterfeit tickets and simplifies on-site verification.
+* Event organizers mint cryptographically verifiable NFT tickets.
+* All ticket actions (minting, transfers, scanning) are signed and validated through KRNL.
+* End-to-end provenance tracking prevents duplication, counterfeiting, and unauthorized transfers.
 
-### 🔐 Secure Blockchain Transactions
+---
 
-- Powered by Avalanche, enabling fast, transparent, and cost-efficient ticket purchases and resales.
-- Immutable transaction records provide peace of mind for buyers and sellers.
+### 📍 Attendance & POAP Verification
 
-### 🔄 Resale Marketplace
+**(KRNL Attendance Kernel)**
 
-- A decentralized marketplace for verified resale, maintaining ticket integrity and fair pricing.
-- Automated smart contracts prevent scalping and fraud.
+* Secure on-site check-ins via QR codes or reference codes.
+* POAP-style attendance badges are minted only after verified check-ins.
+* Attendance proofs are tamper-proof, cryptographically verified, and stored on-chain.
+
+---
+
+### 📲 USSD Access
+
+**(Web2 → Web3 Bridge)**
+
+* Users can browse events and purchase tickets using USSD on basic feature phones.
+* Mobile money payments automatically trigger on-chain ticket minting.
+* Enables participation without smartphones, wallets, or internet access.
+
+---
+
+### 🔄 Programmable Resale Marketplace
+
+**(KRNL Marketplace Kernel)**
+
+* Transparent primary and secondary ticket sales.
+* Organizer-defined resale rules (price caps, transfer limits).
+* Anti-bot and anti-scalping enforcement via KRNL’s programmable logic.
+
+---
+
+### 🧠 Reputation & Loyalty
+
+**(KRNL Reputation Kernel)**
+
+* On-chain attendee reputation built from verified attendance history.
+* Unlocks perks such as early access, exclusive drops, and VIP tiers.
+* Fraud and anomaly detection powered through KRNL’s AI access layer.
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Languages & Frameworks
 
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge\&logo=javascript\&logoColor=black)
+![Solidity](https://img.shields.io/badge/Solidity-363636?style=for-the-badge\&logo=solidity\&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge\&logo=react\&logoColor=61DAFB)
 
-### Languages & Frameworks
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Solidity](https://img.shields.io/badge/Solidity-363636?style=for-the-badge&logo=solidity&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+### Blockchain & Infrastructure
 
-### Blockchain
-![Avalanche](https://img.shields.io/badge/Avalanche-E84142?style=for-the-badge&logo=avalanche&logoColor=white)
-![Web3.js](https://img.shields.io/badge/Web3.js-F16822?style=for-the-badge&logo=web3.js&logoColor=white)
+![KRNL](https://img.shields.io/badge/KRNL-Decentralized_Orchestration-blue?style=for-the-badge)
+![Hardhat](https://img.shields.io/badge/Hardhat-FFF100?style=for-the-badge\&logo=hardhat\&logoColor=black)
+![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-4E5EE4?style=for-the-badge\&logo=OpenZeppelin\&logoColor=white)
 
-### Development Tools
-![Foundry](https://img.shields.io/badge/Foundry-000000?style=for-the-badge&logo=ethereum&logoColor=white)
-![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-4E5EE4?style=for-the-badge&logo=OpenZeppelin&logoColor=white)
-![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+### Integrations
 
+* QR Code Scanning Systems
+* USSD & Mobile Money APIs
+* KRNL Secure API Bridge
 
-
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-1. **Install Node.js:**
+* Node.js ≥ 18
+* npm or yarn
 
-   ```bash
-   # For Windows: Download and install from https://nodejs.org/
-   
-   # For Ubuntu/Debian
-   sudo apt update
-   sudo apt install nodejs npm
-   
-   # For macOS wicth Homebrew
-   brew install node
-   ```
-   Verify installation with: `node --version` and `npm --version`
+### Installation
 
-2. **Install Core Wallet:**
+```bash
+\https://github.com/mokayaj857/event-krnl.git
+cd event-vax
+npm install
+```
 
-   Core is the recommended wallet for interacting with Avalanche and the EventVax platform.
-   
-   - **Download:** [https://core.app/](https://core.app/)
-   - **Browser Extension:** Available for Chrome, Firefox, Brave, and Edge
-   - **Mobile App:** Available on iOS and Android
-   
-   **Setup Steps:**
-   1. Install the Core browser extension or mobile app
-   2. Create a new wallet or import an existing one
-   3. Securely backup your recovery phrase
-   4. Switch to **Fuji Testnet** in network settings
+### Compile Smart Contracts
 
-3. **Get Test AVAX (Fuji Faucet):**
+```bash
+npx hardhat compile
+```
 
-   You'll need test AVAX to interact with the platform on Fuji testnet.
-   
-   **Option 1: Official Avalanche Faucet**
-   - Visit: [https://build.avax.network/console/primary-network/faucet](https://build.avax.network/console/primary-network/faucet)
-   - Connect your Core wallet
-   - Select "Fuji (C-Chain)"
-   - Request test tokens (receive 0.5 AVAX)
-   
-   **Option 2: Core Faucet**
-   - Open Core wallet
-   - Navigate to the faucet section
-   - Request test AVAX directly from the wallet interface
-   
-   > 💡 **Note:** Faucet requests are limited to once per 24 hours per address
+### Deploy (KRNL-compatible networks)
 
-4. **Clone the repository:**
+```bash
+npx hardhat run scripts/deploy.js --network <network>
+```
 
-   ```bash
-   git clone https://github.com/JosephOkumu/event-vax.git
+> 💡 After deployment, initialize the system by deploying the Ticket and POAP kernels via the core contract.
 
-   ```
+---
 
-5. **Install dependencies:**
+## 👥 Team
 
-   ```bash
-   npm install
-   ```
+| Name            | Role                          |
+| --------------- | ----------------------------- |
+| Irene Nditi     | Blockchain Auditor & Security |
+| Celion Ligalamu | Project Manager & Research    |
+| Joe Okumu       | Marketing & Community         |
+| John Mokaya     | Frontend & Web3 Integration   |
 
-6. **Compile smart contracts:**
+---
 
-   ```bash
-   cd contracts
-   forge build
-   ```
+## 📦 Key Deliverables
 
-7. **Configure Avalanche network:**
-   Create `.env` file in `contracts/` directory:
-   ```
-   PRIVATE_KEY=your_private_key
-   FUJI_RPC_URL=https://api.avax-test.network/ext/bc/C/rpc
-   SNOWTRACE_API_KEY=your_api_key
-   ```
+### 1. Landing Page
 
-8. **Deploy contracts (Already deployed to Fuji):**
+<img width="948" src="https://github.com/user-attachments/assets/786b0fb1-92c5-4433-89bd-6c7282ea8e69" />
 
-   ```bash
-   forge script script/Deploy.s.sol --rpc-url $FUJI_RPC_URL --broadcast --verify
-   ```
+### 2. Ticket Collection
 
-9. **Run the application locally:**
+<img width="950" src="https://github.com/user-attachments/assets/cd58022e-d42d-4327-b3f6-ec45d496d4d8" />
 
-   ```bash
-   # First, install and run the backend server
-   cd server
-   npm install
-   npm run dev
-   
-   # In a new terminal, run the frontend
-   cd eventvax
-   npm install
-   npm run dev
-   ```
+### 3. Ticket Sales Flow
 
-> 💡 Contract addresses are configured in `src/config/contracts.js`
+<img width="960" src="https://github.com/user-attachments/assets/a222522c-71fc-47df-b6f0-a775ed58cd11" />
 
-## 👥 The Team
+### 4. Ticket Minting
 
-| Name                | Role                 | Contact                                      |
-| ------------------- | -------------------- | -------------------------------------------- |
-| Williams Ochieng    | Smart Contract Dev   | [williams@example.com](mailto:williams@example.com) |
-| Joseph Okumu Otieno | Full-stack Engineer  | [jokumu25@gmail.com](mailto:jokumu25@gmail.com) |
-| John Mokaya         | Frontend Developer   | [mokayaj857@gmail.com](mailto:mokayaj857@gmail.com) |
-| Phillip Ochieng    | Frontend Developer    | [oumaphilip01@gmail.com](mailto:oumaphilip01@gmail.com) |
-| Ouma Ouma         | Full-Stack Enginee   | [ouma.godwin10@gmail.com](mailto:ouma.godwin10@gmail.com) |
+<img width="959" src="https://github.com/user-attachments/assets/f773d40b-760f-4021-aaf0-0ea4d87e677e" />
 
+### 5. QR Code Verification
 
-### 🌐 Waitlist Landing Page Integration
+<img width="947" src="https://github.com/user-attachments/assets/99520049-8a10-4ae3-b538-2e6b0bc5df7b" />
 
-<img width="945" alt="Screenshot 2025-01-21 151558" src="https://github.com/user-attachments/assets/36aff1b1-6c2f-476d-b0ea-8729c0a52148" />
+---
 
-
-#### Key Deliverables:
-
-1. **Landing Page Design**
-
-   <img width="948" alt="Screenshot 2025-01-21 151517" src="https://github.com/user-attachments/assets/786b0fb1-92c5-4433-89bd-6c7282ea8e69" />
-
-2. **Tickets collection**
-   <img width="950" alt="Screenshot 2025-01-21 161518" src="https://github.com/user-attachments/assets/cd58022e-d42d-4327-b3f6-ec45d496d4d8" />
-   
-3. **Ticket sales**
-
- <img width="960" alt="Screenshot 2025-01-21 151643" src="https://github.com/user-attachments/assets/a222522c-71fc-47df-b6f0-a775ed58cd11" />
-
-4. **Ticket Minting**
-   <img width="959" alt="Screenshot 2025-01-21 151623" src="https://github.com/user-attachments/assets/f773d40b-760f-4021-aaf0-0ea4d87e677e" />
-
-4. **QR code Intergration**
-   <img width="947" alt="Screenshot 2025-01-21 162251" src="https://github.com/user-attachments/assets/99520049-8a10-4ae3-b538-2e6b0bc5df7b" />
-
-
-5. **Go Live!**
-
-   - Promote the page across social media and mailing lists.
-     
-
-
-
-## 🎥 Project Video Demo
+## 🎥 Project Demo
 
 <p align="center">
-  <a href="https://drive.google.com/file/d/1Z5Q1POLNw9g6Vq8ph7jJq1FduJROfza0/view?usp=sharing" target="_blank">
-    <img src="https://img.icons8.com/clouds/500/video-playlist.png" alt="Watch Project Video" width="60%" />
+  <a href="https://www.youtube.com/playlist?list=PLKw819e6--6wuT4hH4dJPO4ckFmUeyure" target="_blank">
+    <img src="https://img.icons8.com/clouds/500/video-playlist.png" alt="Watch Project Demo" width="60%" />
   </a>
 </p>
 
-📽️ **Click the image above to watch the full project demo hosted on Google Drive.**
+---
 
+## 🧩 Why KRNL?
 
+Avara leverages KRNL to:
 
+* Orchestrate ticketing, attendance, and resale logic modularly
+* Securely integrate off-chain systems through trusted APIs
+* Enable cross-chain extensibility and future upgrades
+* Provide decentralized verification for real-world actions
 
+KRNL enables Avara to function as **plug-and-play event infrastructure** for conferences, concerts, universities, and community events.
 
+---
 
-## ⛰️ Avalanche Integration
+## 🔮 Vision
 
-### 🚀 Why Avalanche?
+Avara redefines event access by combining **decentralized trust**, **real-world usability**, and **inclusive design**.
 
-- **Speed & Efficiency:** Lightning-fast finality for instant ticket transfers within 2 seconds.
-- **Low Costs:** Affordable transactions for users and event organizers.
-- **💰 Cost Efficiency**
-   - Minimal transaction fees
-   - Economical for both users and operators
+By bridging USSD, mobile money, and on-chain verification through KRNL, Avara unlocks the next generation of accessible, fraud-resistant, and globally scalable event systems.
 
-### 🔗 Deployment Strategy
-
-- Our smart contracts are deployed on Avalanche's C-Chain to facilitate secure ticket operations.
-- Robust deployment pipeline via Foundry ensures reliability.
-
-### 📍 Live Contracts (Fuji Testnet)
-
-| Contract | Address |
-|----------|----------|
-| EventFactory | `0x53687CccF774FDa60fE2bd4720237fbb8e4fd02c` |
-| Marketplace | `0x5316aD9DB181111D7dA7AF4d139d223A1DdAB8E1` |
-| EventManager | `0x1651f730a846eD23411180eC71C9eFbFCD05A871` |
-| QR Verification | `0xd04E0B0959Ceb4f5Be7e29fc0d072368C1EC0e06` |
-
-**Explorer:** [View on Snowtrace](https://testnet.snowtrace.io/)
-
-**Deployment Details:** See [DEPLOYMENT.md](./docs/DEPLOYMENT.md)
-
-## 🔮 Vision.
-
-Eventverse is redefining event ticketing by combining blockchain security with intuitive user experiences. Stay tuned for exciting updates and new features as we shape the future of event access!
+---
 
 ## 📊 Project Status
-![Development Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
-![Build Status](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)
-![Test Coverage](https://img.shields.io/badge/Coverage-85%25-green?style=for-the-badge)
+
+![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
+![Build](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)
+
+---
+
 
