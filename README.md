@@ -114,7 +114,7 @@ npm run dev
 ### Navigate to the backend folder
 
 ```bash
-cd ~/code/event-vax/event-vax/server
+cd ~/code/event-vax/frontend/server
 ````
 
 ### Install dependencies
