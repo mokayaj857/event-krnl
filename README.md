@@ -99,13 +99,53 @@ Powered by **KRNL’s decentralized orchestration layer**, Avara securely connec
 * Node.js ≥ 18
 * npm or yarn
 
-### Installation
+### Installation(Frontend)
 
 ```bash
-\https://github.com/mokayaj857/event-krnl.git
-cd event-vax
+https://github.com/mokayaj857/event-krnl.git
+cd ~/code/event-vax/event-vax
+npm install
+npm run dev
+```
+
+````markdown
+## Backend Setup
+
+### Navigate to the backend folder
+
+```bash
+cd ~/code/event-vax/event-vax/server
+````
+
+### Install dependencies
+
+```bash
 npm install
 ```
+
+### Start the server
+
+```bash
+npm start
+```
+
+### Server Output
+
+You should see something like:
+
+```
+✅ Events table created/verified
+✅ Tickets table created/verified
+✅ Database initialized successfully
+🚀 Server running on port 8080
+📊 Health check: http://localhost:8080/health
+💬 Chatbot API: http://localhost:8080/api/chatbot
+🎫 Events API: http://localhost:8080/api/events
+🎟️ Tickets API: http://localhost:8080/api/tickets
+```
+
+The backend will now be running at `http://localhost:8080`.
+
 
 ### Compile Smart Contracts
 
