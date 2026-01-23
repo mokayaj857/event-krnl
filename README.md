@@ -180,6 +180,151 @@ Avara leverages KRNL to:
 KRNL enables Avara to function as **plug-and-play event infrastructure** for conferences, concerts, universities, and community events.
 
 ---
+# KRNL Integration (Avara) — Audit Pointers & Kernel Map
+
+This folder is the **KRNL integration workspace** inside the Event‑Vax repo.
+
+It contains:
+- A **KRNL SDK demo dApp** (EIP‑7702 + workflows) you can run locally
+- An **Avara smart contract implementation** that enforces **KRNL‑signed actions** on-chain
+- Exported **ABIs** used by UIs and scripts
+
+If you are auditing “Where is KRNL used?”, this README is designed to be a fast, unambiguous pointer to the exact code.
+
+---
+
+## ✨ KRNL at a glance (what you’re looking at)
+
+Think of this directory as a **complete, traceable KRNL integration slice**:
+
+- **Frontend (SDK)**: KRNL account abstraction + workflow execution via `@krnl-dev/sdk-react-7702`
+- **Contracts (on-chain enforcement)**: KRNL’s role expressed as a **trusted signer** (`krnlSigner`) whose signatures gate ticket minting and attendance proofs
+- **Kernels (your architecture)**: Ticket, Attendance/POAP, Marketplace, Reputation — mapped 1:1 to concrete code paths below
+
+---
+
+## ✅ Where KRNL is used (exact locations)
+
+### A) KRNL SDK usage (Frontend)
+
+**Directory:** `event-vax/krnl/hello-krnl/frontend/`
+
+#### ✅ “SDK is used here”
+
+- **KRNL Provider wiring (SDK entrypoint)**: `hello-krnl/frontend/src/App.tsx`
+  - Wraps the app with `KRNLProvider` from `@krnl-dev/sdk-react-7702`
+- **KRNL config**: `hello-krnl/frontend/src/lib/krnl.ts`
+  - Builds config via `createConfig(...)` using:
+    - `VITE_KRNL_NODE_URL`
+    - `VITE_DELEGATED_ACCOUNT_ADDRESS`
+    - `VITE_PRIVY_APP_ID`
+    - `VITE_RPC_URL`
+- **KRNL SDK hook usage**: `hello-krnl/frontend/src/hooks/useTestScenario.ts`
+  - Calls `useKRNL()` / `useNodeConfig()` and executes workflows via `executeWorkflowFromTemplate(...)`
+
+**Avara kernel hooks & UI (implemented inside the demo app):**
+- **Ticket Kernel**:
+  - Hook: `hello-krnl/frontend/src/hooks/kernels/useTicketKernel.ts`
+  - UI: `hello-krnl/frontend/src/components/kernels/TicketKernelCard.tsx`
+- **Attendance & POAP Kernel**:
+  - Hook: `hello-krnl/frontend/src/hooks/kernels/useAttendanceKernel.ts`
+  - UI: `hello-krnl/frontend/src/components/kernels/AttendanceKernelCard.tsx`
+- **Marketplace Kernel**:
+  - Hook: `hello-krnl/frontend/src/hooks/kernels/useMarketplaceKernel.ts`
+  - UI: `hello-krnl/frontend/src/components/kernels/MarketplaceKernelCard.tsx`
+- **Reputation Kernel**:
+  - Hook: `hello-krnl/frontend/src/hooks/kernels/useReputationKernel.ts`
+  - UI: `hello-krnl/frontend/src/components/kernels/ReputationKernelCard.tsx`
+
+**Kernel UI is surfaced in**: `hello-krnl/frontend/src/pages/Dashboard.tsx` (section “Avara KRNL Kernels”).
+
+---
+
+### B) KRNL integration in contracts (On-chain verification)
+
+**Directory:** `event-vax/krnl/avara/contracts/`
+
+#### ✅ “Contracts enforce KRNL-signed proofs here”
+
+- **KRNL signer and signature verification**: `avara/contracts/avara.sol`
+  - Stores `krnlSigner` on-chain
+  - Verifies signatures via `_verifyKrnlSignature(...)` (ECDSA recover)
+  - Gates critical actions:
+    - `mintTicketWithKrnl(...)` (**Ticket Kernel**)
+    - `checkInAndMintPOAP(...)` (**Attendance & POAP Kernel**)
+  - Replay protection via `usedProof`
+  - Marketplace + reputation logic live in the same contract (listing rules, resale caps, reputation increments)
+
+> Important: Solidity contracts do not “use the KRNL SDK” directly. The contract-side integration is implemented as **signature verification + trusted KRNL signer address**.
+
+---
+
+## 🧩 Four-kernel map (Avara ↔ KRNL)
+
+This repo models your architecture as four composable kernels:
+
+- **🎫 Ticket Kernel (Registry Kernel Extension)**  
+  KRNL-signed mint proof → `mintTicketWithKrnl(...)` in `avara.sol`
+- **✅ Attendance & POAP Kernel (Custom Kernel)**  
+  KRNL-signed check-in proof → `checkInAndMintPOAP(...)` in `avara.sol`
+- **🛒 Marketplace Kernel**  
+  Rules + resale enforcement → `listTicket(...)`, `buyTicket(...)`, `setEventRules(...)` in `avara.sol`
+- **⭐ Reputation Kernel**  
+  Score tracking → `reputation` mapping updated on POAP issuance in `avara.sol`
+
+---
+
+## 📦 ABIs (for UIs / scripts)
+
+**Directory:** `event-vax/krnl/src/contracts/`
+- `AvaraCore.json`
+- `POAPNFT.json`
+- `TicketNFT.json`
+
+---
+
+## ▶️ Run the KRNL demo dApp (local)
+
+```bash
+cd event-vax/krnl/hello-krnl/frontend
+npm install
+npm run type-check
+npm run build
+npm run dev
+```
+
+Environment variables (example):
+```env
+VITE_PRIVY_APP_ID=...
+VITE_KRNL_NODE_URL=https://node.krnl.xyz
+VITE_DELEGATED_ACCOUNT_ADDRESS=0x...
+VITE_AVARA_CORE_ADDRESS=0x...
+VITE_RPC_URL=...
+```
+
+---
+
+## 📄 Extra docs
+
+- `event-vax/krnl/README-KRNL-KERNELS.md`: kernel mapping overview
+- `event-vax/krnl/KRNL-INTEGRATION-COMPLETE.md`: full integration guide
+- `event-vax/krnl/INTEGRATION-STATUS.md`: status checklist
+- `event-vax/krnl/TEST-RESULTS.md`: build/type-check results
+
+---
+
+## 🧾 “Submit-ready” audit note (copy/paste)
+
+If an auditor asks *“Where is KRNL used?”*:
+
+- **KRNL SDK** is used in `event-vax/krnl/hello-krnl/frontend/`:
+  - `src/App.tsx` (`KRNLProvider` from `@krnl-dev/sdk-react-7702`)
+  - `src/lib/krnl.ts` (`createConfig` from `@krnl-dev/sdk-react-7702`)
+  - `src/hooks/useTestScenario.ts` (`useKRNL`, `useNodeConfig`, workflow execution)
+- **KRNL contract enforcement** is implemented in `event-vax/krnl/avara/contracts/avara.sol`:
+  - `krnlSigner` stored on-chain
+  - `_verifyKrnlSignature(...)` (ECDSA verification)
+  - `mintTicketWithKrnl(...)` and `checkInAndMintPOAP(...)` gated by KRNL signatures
 
 ## 🔮 Vision
 
