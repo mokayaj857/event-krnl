@@ -1,201 +1,351 @@
-# 🎟️ Eventverse.
+
+
+---
+
+# 🎟️ Avara
+
+**Modular Decentralized Event Ticketing & Attendance Infrastructure**
+
+---
 
 ## 🌍 Overview
 
-Eventverse is a revolutionary blockchain-based ticketing platform engineered to combat fraud and inefficiencies in the event ticketing industry. Leveraging the Avalanche blockchain, our platform empowers event organizers to issue tickets as digital tokens, ensuring secure purchases, effortless resales, and QR-code-based authentication.
+**Avara** is a modular, decentralized event ticketing and attendance verification platform built on **KRNL**.
 
-## ✨ Key Features,
+It addresses critical challenges in event management—ticket fraud, fake attendance claims, opaque resale markets, and limited accessibility—by transforming tickets into **verifiable NFT assets** and attendance into **on-chain POAP-style credentials**.
 
-### 🎟️ Decentralized Ticket Minting & Transfer
+Powered by **KRNL’s decentralized orchestration layer**, Avara securely connects blockchain logic with real-world systems such as **QR scanners, USSD, and mobile money**, enabling trustless, transparent, and inclusive event participation.
 
-- Event organizers can mint unique, tamper-proof tickets with embedded event details.
-- Blockchain-backed transparency guarantees authenticity and secure transfers.
+---
 
-### 🤖 AI Assistant
+## ✨ Key Features
 
-- An intelligent chatbot designed to help users navigate the EventVax platform
-- Provides accurate, context-aware answers about ticket purchasing, wallet connections, event creation, and more
-- Offers step-by-step guidance for blockchain interactions and NFT ticket management
-- Features a beautiful floating UI that's accessible throughout the platform
+### 🎟️ Modular NFT Ticketing
 
-### 📲 QR Code Verification
+**(KRNL Registry Kernel)**
 
-- Each ticket is embedded with a unique QR code for instant and tamper-proof validation.
-- Eliminates counterfeit tickets and simplifies on-site verification.
+* Event organizers mint cryptographically verifiable NFT tickets.
+* All ticket actions (minting, transfers, scanning) are signed and validated through KRNL.
+* End-to-end provenance tracking prevents duplication, counterfeiting, and unauthorized transfers.
 
-### 🔐 Secure Blockchain Transactions
+---
 
-- Powered by Avalanche, enabling fast, transparent, and cost-efficient ticket purchases and resales.
-- Immutable transaction records provide peace of mind for buyers and sellers.
+### 📍 Attendance & POAP Verification
 
-### 🔄 Resale Marketplace
+**(KRNL Attendance Kernel)**
 
-- A decentralized marketplace for verified resale, maintaining ticket integrity and fair pricing.
-- Automated smart contracts prevent scalping and fraud.
+* Secure on-site check-ins via QR codes or reference codes.
+* POAP-style attendance badges are minted only after verified check-ins.
+* Attendance proofs are tamper-proof, cryptographically verified, and stored on-chain.
+
+---
+
+### 📲 USSD Access
+
+**(Web2 → Web3 Bridge)**
+
+* Users can browse events and purchase tickets using USSD on basic feature phones.
+* Mobile money payments automatically trigger on-chain ticket minting.
+* Enables participation without smartphones, wallets, or internet access.
+
+---
+
+### 🔄 Programmable Resale Marketplace
+
+**(KRNL Marketplace Kernel)**
+
+* Transparent primary and secondary ticket sales.
+* Organizer-defined resale rules (price caps, transfer limits).
+* Anti-bot and anti-scalping enforcement via KRNL’s programmable logic.
+
+---
+
+### 🧠 Reputation & Loyalty
+
+**(KRNL Reputation Kernel)**
+
+* On-chain attendee reputation built from verified attendance history.
+* Unlocks perks such as early access, exclusive drops, and VIP tiers.
+* Fraud and anomaly detection powered through KRNL’s AI access layer.
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Languages & Frameworks
 
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge\&logo=javascript\&logoColor=black)
+![Solidity](https://img.shields.io/badge/Solidity-363636?style=for-the-badge\&logo=solidity\&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge\&logo=react\&logoColor=61DAFB)
 
-### Languages & Frameworks
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Solidity](https://img.shields.io/badge/Solidity-363636?style=for-the-badge&logo=solidity&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+### Blockchain & Infrastructure
 
-### Blockchain
-![Avalanche](https://img.shields.io/badge/Avalanche-E84142?style=for-the-badge&logo=avalanche&logoColor=white)
-![Web3.js](https://img.shields.io/badge/Web3.js-F16822?style=for-the-badge&logo=web3.js&logoColor=white)
+![KRNL](https://img.shields.io/badge/KRNL-Decentralized_Orchestration-blue?style=for-the-badge)
+![Hardhat](https://img.shields.io/badge/Hardhat-FFF100?style=for-the-badge\&logo=hardhat\&logoColor=black)
+![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-4E5EE4?style=for-the-badge\&logo=OpenZeppelin\&logoColor=white)
 
-### Development Tools
-![Hardhat](https://img.shields.io/badge/Hardhat-FFF100?style=for-the-badge&logo=hardhat&logoColor=black)
-![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-4E5EE4?style=for-the-badge&logo=OpenZeppelin&logoColor=white)
-![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+### Integrations
 
+* QR Code Scanning Systems
+* USSD & Mobile Money APIs
+* KRNL Secure API Bridge
 
-
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-1. **Install Node.js:**
+* Node.js ≥ 18
+* npm or yarn
 
-   ```bash
-   # For Windows: Download and install from https://nodejs.org/
-   
-   # For Ubuntu/Debian
-   sudo apt update
-   sudo apt install nodejs npm
-   
-   # For macOS wicth Homebrew
-   brew install node
-   ```
-   Verify installation with: `node --version` and `npm --version`
+### Installation(Frontend)
 
-2. **Clone the repository:**
+```bash
+https://github.com/mokayaj857/event-krnl.git
+cd ~/code/event-vax/frontend
+npm install
+npm run dev
+```
 
-   ```bash
-   git clone https://github.com/mokayaj857/eventvax.git
+````markdown
+## Backend Setup
 
-   ```
+### Navigate to the backend folder
 
-2. **Install dependencies:**
+```bash
+cd ~/code/event-vax/event-vax/server
+````
 
-   ```bash
-   npm install
-   ```
+### Install dependencies
 
-3. **Compile smart contracts:**
+```bash
+npm install
+```
 
-   ```bash
-   npx hardhat compile
-   ```
+### Start the server
 
-4. **Configure Avalanche network:**
-   Edit `hardhat.config.js` to include Avalanche network details under the `networks` section.
+```bash
+npm start
+```
 
-5. **Deploy contracts:**
+### Server Output
 
-   ```bash
-   npx hardhat run scripts/deploy.js --network avalanche
-   ```
+You should see something like:
 
-6. **Run the application locally:**
+```
+✅ Events table created/verified
+✅ Tickets table created/verified
+✅ Database initialized successfully
+🚀 Server running on port 8080
+📊 Health check: http://localhost:8080/health
+💬 Chatbot API: http://localhost:8080/api/chatbot
+🎫 Events API: http://localhost:8080/api/events
+🎟️ Tickets API: http://localhost:8080/api/tickets
+```
 
-   ```bash
-   # First, install and run the backend server
-   cd server
-   npm install
-   npm run dev
-   
-   # In a new terminal, run the frontend
-   cd eventvax
-   npm install
-   npm run dev
-   ```
-
-> 💡 Don't forget to update your contract address in the configuration files!
-
-## 👥 The Team
-
-| Name                | Role                 | Contact                                      |
-| ------------------- | -------------------- | -------------------------------------------- |
-| Williams Ochieng    | Smart Contract Dev   | [williams@example.com](mailto:williams@example.com) |
-| Joseph Okumu Otieno | Full-stack Engineer  | [jokumu25@gmail.com](mailto:jokumu25@gmail.com) |
-| John Mokaya         | Frontend Developer   | [mokayaj857@gmail.com](mailto:mokayaj857@gmail.com) |
-| Phillip Ochieng    | Frontend Developer    | [oumaphilip01@gmail.com](mailto:oumaphilip01@gmail.com) |
-| Ouma Ouma         | Full-Stack Enginee   | [ouma.godwin10@gmail.com](mailto:ouma.godwin10@gmail.com) |
+The backend will now be running at `http://localhost:8080`.
 
 
-### 🌐 Waitlist Landing Page Integration
+### Compile Smart Contracts
 
-<img width="945" alt="Screenshot 2025-01-21 151558" src="https://github.com/user-attachments/assets/36aff1b1-6c2f-476d-b0ea-8729c0a52148" />
+```bash
+npx hardhat compile
+```
 
+### Deploy (KRNL-compatible networks)
 
-#### Key Deliverables:
+```bash
+npx hardhat run scripts/deploy.js --network <network>
+```
 
-1. **Landing Page Design**
+> 💡 After deployment, initialize the system by deploying the Ticket and POAP kernels via the core contract.
 
-   <img width="948" alt="Screenshot 2025-01-21 151517" src="https://github.com/user-attachments/assets/786b0fb1-92c5-4433-89bd-6c7282ea8e69" />
+---
 
-2. **Tickets collection**
-   <img width="950" alt="Screenshot 2025-01-21 161518" src="https://github.com/user-attachments/assets/cd58022e-d42d-4327-b3f6-ec45d496d4d8" />
-   
-3. **Ticket sales**
+## 👥 Team
 
- <img width="960" alt="Screenshot 2025-01-21 151643" src="https://github.com/user-attachments/assets/a222522c-71fc-47df-b6f0-a775ed58cd11" />
+| Name            | Role                          |
+| --------------- | ----------------------------- |
+| Irene Nditi     | Blockchain Auditor & Security |
+| Celion Ligalamu | Project Manager & Research    |
+| Joe Okumu       | Marketing & Community         |
+| John Mokaya     | Frontend & Web3 Integration   |
 
-4. **Ticket Minting**
-   <img width="959" alt="Screenshot 2025-01-21 151623" src="https://github.com/user-attachments/assets/f773d40b-760f-4021-aaf0-0ea4d87e677e" />
+---
 
-4. **QR code Intergration**
-   <img width="947" alt="Screenshot 2025-01-21 162251" src="https://github.com/user-attachments/assets/99520049-8a10-4ae3-b538-2e6b0bc5df7b" />
+## 📦 Key Deliverables
 
+### 1. Landing Page
 
-5. **Go Live!**
+<img width="948" src="https://github.com/user-attachments/assets/786b0fb1-92c5-4433-89bd-6c7282ea8e69" />
 
-   - Promote the page across social media and mailing lists.
-     
+### 2. Ticket Collection
 
+<img width="950" src="https://github.com/user-attachments/assets/cd58022e-d42d-4327-b3f6-ec45d496d4d8" />
 
+### 3. Ticket Sales Flow
 
-## 🎥 Project Video Demo
+<img width="960" src="https://github.com/user-attachments/assets/a222522c-71fc-47df-b6f0-a775ed58cd11" />
+
+### 4. Ticket Minting
+
+<img width="959" src="https://github.com/user-attachments/assets/f773d40b-760f-4021-aaf0-0ea4d87e677e" />
+
+### 5. QR Code Verification
+
+<img width="947" src="https://github.com/user-attachments/assets/99520049-8a10-4ae3-b538-2e6b0bc5df7b" />
+
+---
+
+## 🎥 Project Demo
 
 <p align="center">
-  <a href="https://drive.google.com/file/d/1Z5Q1POLNw9g6Vq8ph7jJq1FduJROfza0/view?usp=sharing" target="_blank">
-    <img src="https://img.icons8.com/clouds/500/video-playlist.png" alt="Watch Project Video" width="60%" />
+  <a href="https://www.youtube.com/playlist?list=PLKw819e6--6wuT4hH4dJPO4ckFmUeyure" target="_blank">
+    <img src="https://img.icons8.com/clouds/500/video-playlist.png" alt="Watch Project Demo" width="60%" />
   </a>
 </p>
 
-📽️ **Click the image above to watch the full project demo hosted on Google Drive.**
+---
 
+## 🧩 Why KRNL?
 
+Avara leverages KRNL to:
 
+* Orchestrate ticketing, attendance, and resale logic modularly
+* Securely integrate off-chain systems through trusted APIs
+* Enable cross-chain extensibility and future upgrades
+* Provide decentralized verification for real-world actions
 
+KRNL enables Avara to function as **plug-and-play event infrastructure** for conferences, concerts, universities, and community events.
 
+---
+# KRNL Integration (Avara) 
+##  Where KRNL is used (exact locations)
 
-## ⛰️ Avalanche Integration
+### A) KRNL SDK usage (Frontend)
 
-### 🚀 Why Avalanche?
+**Directory:** `event-vax/krnl/hello-krnl/frontend/`
 
-- **Speed & Efficiency:** Lightning-fast finality for instant ticket transfers within 2 seconds.
-- **Low Costs:** Affordable transactions for users and event organizers.
-- **💰 Cost Efficiency**
-   - Minimal transaction fees
-   - Economical for both users and operators
+#### “SDK is used here”
 
-### 🔗 Deployment Strategy
+- **KRNL Provider wiring (SDK entrypoint)**: `hello-krnl/frontend/src/App.tsx`
+  - Wraps the app with `KRNLProvider` from `@krnl-dev/sdk-react-7702`
+- **KRNL config**: `hello-krnl/frontend/src/lib/krnl.ts`
+  - Builds config via `createConfig(...)` using:
+    - `VITE_KRNL_NODE_URL`
+    - `VITE_DELEGATED_ACCOUNT_ADDRESS`
+    - `VITE_PRIVY_APP_ID`
+    - `VITE_RPC_URL`
+- **KRNL SDK hook usage**: `hello-krnl/frontend/src/hooks/useTestScenario.ts`
+  - Calls `useKRNL()` / `useNodeConfig()` and executes workflows via `executeWorkflowFromTemplate(...)`
 
-- Our smart contracts are deployed on Avalanche's C-Chain to facilitate secure ticket operations.
-- Robust deployment pipeline via Hardhat ensures reliability.
+**Avara kernel hooks & UI (implemented inside the demo app):**
+- **Ticket Kernel**:
+  - Hook: `hello-krnl/frontend/src/hooks/kernels/useTicketKernel.ts`
+  - UI: `hello-krnl/frontend/src/components/kernels/TicketKernelCard.tsx`
+- **Attendance & POAP Kernel**:
+  - Hook: `hello-krnl/frontend/src/hooks/kernels/useAttendanceKernel.ts`
+  - UI: `hello-krnl/frontend/src/components/kernels/AttendanceKernelCard.tsx`
+- **Marketplace Kernel**:
+  - Hook: `hello-krnl/frontend/src/hooks/kernels/useMarketplaceKernel.ts`
+  - UI: `hello-krnl/frontend/src/components/kernels/MarketplaceKernelCard.tsx`
+- **Reputation Kernel**:
+  - Hook: `hello-krnl/frontend/src/hooks/kernels/useReputationKernel.ts`
+  - UI: `hello-krnl/frontend/src/components/kernels/ReputationKernelCard.tsx`
 
-## 🔮 Vision.
+**Kernel UI is surfaced in**: `hello-krnl/frontend/src/pages/Dashboard.tsx` (section “Avara KRNL Kernels”).
 
-Eventverse is redefining event ticketing by combining blockchain security with intuitive user experiences. Stay tuned for exciting updates and new features as we shape the future of event access!
+---
+
+### B) KRNL integration in contracts (On-chain verification)
+
+**Directory:** `event-vax/krnl/avara/contracts/`
+
+####  “Contracts enforce KRNL-signed proofs here”
+
+- **KRNL signer and signature verification**: `avara/contracts/avara.sol`
+  - Stores `krnlSigner` on-chain
+  - Verifies signatures via `_verifyKrnlSignature(...)` (ECDSA recover)
+  - Gates critical actions:
+    - `mintTicketWithKrnl(...)` (**Ticket Kernel**)
+    - `checkInAndMintPOAP(...)` (**Attendance & POAP Kernel**)
+  - Replay protection via `usedProof`
+  - Marketplace + reputation logic live in the same contract (listing rules, resale caps, reputation increments)
+
+> Important: Solidity contracts do not “use the KRNL SDK” directly. The contract-side integration is implemented as **signature verification + trusted KRNL signer address**.
+
+---
+
+##  Four-kernel map (Avara ↔ KRNL)
+
+This repo models your architecture as four composable kernels:
+
+- ** Ticket Kernel (Registry Kernel Extension)**  
+  KRNL-signed mint proof → `mintTicketWithKrnl(...)` in `avara.sol`
+- **Attendance & POAP Kernel (Custom Kernel)**  
+  KRNL-signed check-in proof → `checkInAndMintPOAP(...)` in `avara.sol`
+- ** Marketplace Kernel**  
+  Rules + resale enforcement → `listTicket(...)`, `buyTicket(...)`, `setEventRules(...)` in `avara.sol`
+- **Reputation Kernel**  
+  Score tracking → `reputation` mapping updated on POAP issuance in `avara.sol`
+
+---
+
+## ABIs (for UIs / scripts)
+
+**Directory:** `event-vax/krnl/src/contracts/`
+- `AvaraCore.json`
+- `POAPNFT.json`
+- `TicketNFT.json`
+
+---
+
+## ▶️ Run the KRNL demo dApp (local)
+
+```bash
+cd event-vax/krnl/hello-krnl/frontend
+npm install
+npm run type-check
+npm run build
+npm run dev
+```
+
+Environment variables (example):
+```env
+VITE_PRIVY_APP_ID=...
+VITE_KRNL_NODE_URL=https://node.krnl.xyz
+VITE_DELEGATED_ACCOUNT_ADDRESS=0x...
+VITE_AVARA_CORE_ADDRESS=0x...
+VITE_RPC_URL=...
+```
+
+---
+
+ *“Where is KRNL used?”*:
+
+- **KRNL SDK** is used in `event-vax/krnl/hello-krnl/frontend/`:
+  - `src/App.tsx` (`KRNLProvider` from `@krnl-dev/sdk-react-7702`)
+  - `src/lib/krnl.ts` (`createConfig` from `@krnl-dev/sdk-react-7702`)
+  - `src/hooks/useTestScenario.ts` (`useKRNL`, `useNodeConfig`, workflow execution)
+- **KRNL contract enforcement** is implemented in `event-vax/krnl/avara/contracts/avara.sol`:
+  - `krnlSigner` stored on-chain
+  - `_verifyKrnlSignature(...)` (ECDSA verification)
+  - `mintTicketWithKrnl(...)` and `checkInAndMintPOAP(...)` gated by KRNL signatures
+
+## 🔮 Vision
+
+Avara redefines event access by combining **decentralized trust**, **real-world usability**, and **inclusive design**.
+
+By bridging USSD, mobile money, and on-chain verification through KRNL, Avara unlocks the next generation of accessible, fraud-resistant, and globally scalable event systems.
+
+---
 
 ## 📊 Project Status
-![Development Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
-![Build Status](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)
-![Test Coverage](https://img.shields.io/badge/Coverage-85%25-green?style=for-the-badge)
+
+![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
+![Build](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)
+
+---
+
 
