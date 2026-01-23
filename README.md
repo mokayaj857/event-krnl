@@ -180,36 +180,14 @@ Avara leverages KRNL to:
 KRNL enables Avara to function as **plug-and-play event infrastructure** for conferences, concerts, universities, and community events.
 
 ---
-# KRNL Integration (Avara) — Audit Pointers & Kernel Map
-
-This folder is the **KRNL integration workspace** inside the Event‑Vax repo.
-
-It contains:
-- A **KRNL SDK demo dApp** (EIP‑7702 + workflows) you can run locally
-- An **Avara smart contract implementation** that enforces **KRNL‑signed actions** on-chain
-- Exported **ABIs** used by UIs and scripts
-
-If you are auditing “Where is KRNL used?”, this README is designed to be a fast, unambiguous pointer to the exact code.
-
----
-
-## ✨ KRNL at a glance (what you’re looking at)
-
-Think of this directory as a **complete, traceable KRNL integration slice**:
-
-- **Frontend (SDK)**: KRNL account abstraction + workflow execution via `@krnl-dev/sdk-react-7702`
-- **Contracts (on-chain enforcement)**: KRNL’s role expressed as a **trusted signer** (`krnlSigner`) whose signatures gate ticket minting and attendance proofs
-- **Kernels (your architecture)**: Ticket, Attendance/POAP, Marketplace, Reputation — mapped 1:1 to concrete code paths below
-
----
-
-## ✅ Where KRNL is used (exact locations)
+# KRNL Integration (Avara) 
+##  Where KRNL is used (exact locations)
 
 ### A) KRNL SDK usage (Frontend)
 
 **Directory:** `event-vax/krnl/hello-krnl/frontend/`
 
-#### ✅ “SDK is used here”
+#### “SDK is used here”
 
 - **KRNL Provider wiring (SDK entrypoint)**: `hello-krnl/frontend/src/App.tsx`
   - Wraps the app with `KRNLProvider` from `@krnl-dev/sdk-react-7702`
@@ -244,7 +222,7 @@ Think of this directory as a **complete, traceable KRNL integration slice**:
 
 **Directory:** `event-vax/krnl/avara/contracts/`
 
-#### ✅ “Contracts enforce KRNL-signed proofs here”
+####  “Contracts enforce KRNL-signed proofs here”
 
 - **KRNL signer and signature verification**: `avara/contracts/avara.sol`
   - Stores `krnlSigner` on-chain
@@ -259,22 +237,22 @@ Think of this directory as a **complete, traceable KRNL integration slice**:
 
 ---
 
-## 🧩 Four-kernel map (Avara ↔ KRNL)
+##  Four-kernel map (Avara ↔ KRNL)
 
 This repo models your architecture as four composable kernels:
 
-- **🎫 Ticket Kernel (Registry Kernel Extension)**  
+- ** Ticket Kernel (Registry Kernel Extension)**  
   KRNL-signed mint proof → `mintTicketWithKrnl(...)` in `avara.sol`
-- **✅ Attendance & POAP Kernel (Custom Kernel)**  
+- **Attendance & POAP Kernel (Custom Kernel)**  
   KRNL-signed check-in proof → `checkInAndMintPOAP(...)` in `avara.sol`
-- **🛒 Marketplace Kernel**  
+- ** Marketplace Kernel**  
   Rules + resale enforcement → `listTicket(...)`, `buyTicket(...)`, `setEventRules(...)` in `avara.sol`
-- **⭐ Reputation Kernel**  
+- **Reputation Kernel**  
   Score tracking → `reputation` mapping updated on POAP issuance in `avara.sol`
 
 ---
 
-## 📦 ABIs (for UIs / scripts)
+## ABIs (for UIs / scripts)
 
 **Directory:** `event-vax/krnl/src/contracts/`
 - `AvaraCore.json`
