@@ -9,20 +9,20 @@ import { PrivyProvider as PrivyRootProvider } from '@privy-io/react-auth';
  * - (optional) VITE_WALLETCONNECT_PROJECT_ID
  */
 export const PrivyProvider = ({ children }) => {
-  const appId = import.meta.env.VITE_PRIVY_APP_ID;
+  const rawAppId = import.meta.env.VITE_PRIVY_APP_ID;
+  const appId = rawAppId || (import.meta.env.PROD ? 'development' : undefined);
 
-  // In dev, allow the app to run even if PRIVY_APP_ID is not set,
-  // and simply skip initializing Privy. In prod, you should set this.
+  // In dev, allow the app to run even if PRIVY_APP_ID is not set.
   if (!appId) {
-    if (import.meta.env.DEV) {
-      console.warn(
-        '[PrivyProvider] VITE_PRIVY_APP_ID is not set. Skipping Privy initialization in dev.'
-      );
-      return <>{children}</>;
-    }
-    // In non-dev environments, fail fast so misconfiguration is obvious.
-    throw new Error(
-      'PrivyProvider: VITE_PRIVY_APP_ID is not configured. Please set it in your .env.'
+    console.warn(
+      '[PrivyProvider] VITE_PRIVY_APP_ID is not set. Skipping Privy initialization.'
+    );
+    return <>{children}</>;
+  }
+
+  if (appId === 'development' && import.meta.env.PROD) {
+    console.warn(
+      '[PrivyProvider] Using fallback Privy app id "development" in production. Set VITE_PRIVY_APP_ID to your real value.'
     );
   }
 
