@@ -304,18 +304,7 @@ VITE_RPC_URL=...
 
 ---
 
-## 📄 Extra docs
-
-- `event-vax/krnl/README-KRNL-KERNELS.md`: kernel mapping overview
-- `event-vax/krnl/KRNL-INTEGRATION-COMPLETE.md`: full integration guide
-- `event-vax/krnl/INTEGRATION-STATUS.md`: status checklist
-- `event-vax/krnl/TEST-RESULTS.md`: build/type-check results
-
----
-
-## 🧾 “Submit-ready” audit note (copy/paste)
-
-If an auditor asks *“Where is KRNL used?”*:
+ *“Where is KRNL used?”*:
 
 - **KRNL SDK** is used in `event-vax/krnl/hello-krnl/frontend/`:
   - `src/App.tsx` (`KRNLProvider` from `@krnl-dev/sdk-react-7702`)
