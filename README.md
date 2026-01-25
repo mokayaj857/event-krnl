@@ -101,7 +101,7 @@ Powered by **KRNL’s decentralized orchestration layer**, Avara securely connec
 
 ```bash
 https://github.com/mokayaj857/event-krnl.git
-cd ~/code/event-vax/frontend
+cd ~/code/event-vax/frontend/event-vax
 npm install
 npm run dev
 ```
@@ -112,7 +112,7 @@ npm run dev
 ### Navigate to the backend folder
 
 ```bash
-cd ~/code/event-vax/event-vax/server
+cd ~/code/event-vax/frontend/event-vax/server
 ````
 
 ### Install dependencies
