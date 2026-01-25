@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Star, MessageSquare, Send, X, User, Calendar } from 'lucide-react';
 
 const CommentRatingSection = ({ 
   eventId, 
-  eventName, 
+  _eventName, 
   canComment = false, 
   showPreview = false,
   onCommentAdded,

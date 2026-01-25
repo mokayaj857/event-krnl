@@ -14,7 +14,7 @@ export async function handleChatbotQuery(message, userId = null) {
   const responses = getEventTicketingResponses();
   
   // Initialize context tracking (can be expanded in future versions)
-  let conversationContext = userId ? getUserConversationContext(userId) : { recentTopics: [] };
+  let _conversationContext = userId ? getUserConversationContext(userId) : { recentTopics: [] };
   
   // Parse the query to understand user intent
   const parsedIntent = parseQueryIntent(query);
@@ -81,14 +81,15 @@ async function getResponseForIntent(intent, query, responses) {
     const intentData = responses.intents[intent];
     
     // Check if we need to extract specific details from the query
-    if (intentData.requiresEntityExtraction) {
-      const extractedEntities = extractEntitiesFromQuery(query, intent);
-      
-      // If we have a template response that uses extracted entities
-      if (extractedEntities && intentData.templateResponse) {
-        return formatTemplateResponse(intentData.templateResponse, extractedEntities);
-      }
-    }
+    // Note: Entity extraction functions are not yet implemented
+    // if (intentData.requiresEntityExtraction) {
+    //   const extractedEntities = extractEntitiesFromQuery(query, intent);
+    //   
+    //   // If we have a template response that uses extracted entities
+    //   if (extractedEntities && intentData.templateResponse) {
+    //     return formatTemplateResponse(intentData.templateResponse, extractedEntities);
+    //   }
+    // }
     
     // For question-specific responses
     for (const questionPattern of Object.keys(intentData.questionResponses || {})) {
@@ -240,10 +241,10 @@ function findRelevantKeywords(query, responses) {
 /**
  * Find the best intent match based on keyword matches
  * @param {Array<Object>} keywordMatches - Keyword matches
- * @param {Object} responses - Response data
+ * @param {Object} _responses - Response data
  * @returns {string|null} - Best matching intent or null
  */
-function findBestIntentMatch(keywordMatches, responses) {
+function findBestIntentMatch(keywordMatches, _responses) {
   if (keywordMatches.length === 0) return null;
   
   // Count occurrences of each intent
@@ -312,10 +313,10 @@ function isHelpRequest(message) {
 
 /**
  * Gets the conversation context for a user (placeholder for future implementation)
- * @param {string} userId - The user's ID
+ * @param {string} _userId - The user's ID
  * @returns {Object|null} - The user's conversation context or null
  */
-function getUserConversationContext(userId) {
+function getUserConversationContext(_userId) {
   // This would typically retrieve conversation history from a database
   // For this simple implementation, we'll return null
   return null;

@@ -93,7 +93,7 @@ router.get('/:ipfsHash', async (req, res) => {
                     const data = await response.json();
                     return res.json({ success: true, data });
                 }
-            } catch (error) {
+            } catch (_error) {
                 continue;
             }
         }

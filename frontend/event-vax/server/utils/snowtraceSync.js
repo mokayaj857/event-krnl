@@ -53,7 +53,7 @@ export async function syncEventsFromBlockchain() {
                             imageUrl = ipfsData.image || null;
                         }
                     }
-                } catch (err) {
+                } catch (_err) {
                     console.log(`⚠️  No metadata for event ${eventId}`);
                 }
                 

@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
 import chatbotRouter from './routes/chatbot.js';
 import eventsRouter from './routes/events.js';
 import ticketsRouter from './routes/tickets.js';
@@ -15,7 +15,7 @@ dotenv.config();
 
 // Get current directory
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const _dirname = dirname(__filename);
 
 // Initialize express app
 const app = express();

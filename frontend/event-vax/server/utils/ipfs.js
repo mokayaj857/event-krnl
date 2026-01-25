@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const PINATA_API_KEY = process.env.PINATA_API_KEY;
-const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
+const _PINATA_API_KEY = process.env.PINATA_API_KEY;
+const _PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
 const PINATA_JWT = process.env.PINATA_SECRET_JWT;
 
 /**
