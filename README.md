@@ -456,7 +456,7 @@ Server runs on `http://localhost:8080`
 
 **Compile Contracts:**
 ```bash
-cd frontend/krnl/avara
+cd frontend/event-vax/krnl/avara
 npx hardhat compile
 ```
 
