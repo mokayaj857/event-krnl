@@ -32,6 +32,16 @@ export const useAchievements = (walletAddress) => {
       setLoading(true);
       const provider = new ethers.BrowserProvider(window.ethereum);
       
+      // Check network
+      const network = await provider.getNetwork();
+      const expectedChainId = 43113; // Avalanche Fuji
+      
+      if (Number(network.chainId) !== expectedChainId) {
+        console.warn(`Wrong network for achievements. Expected Chain ID ${expectedChainId}, got ${network.chainId}`);
+        setLoading(false);
+        return;
+      }
+      
       // Fetch POAPs
       const poapContract = new ethers.Contract(CONTRACTS.POAP, POAP_ABI, provider);
       const poapBalance = await poapContract.balanceOf(walletAddress);

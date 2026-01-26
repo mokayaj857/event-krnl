@@ -209,6 +209,15 @@ const QuantumMintNFT = () => {
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
+      
+      // Check network
+      const network = await provider.getNetwork();
+      const expectedChainId = 43113; // Avalanche Fuji
+      
+      if (Number(network.chainId) !== expectedChainId) {
+        throw new Error(`Wrong network! Please switch to Avalanche Fuji Testnet (Chain ID: ${expectedChainId}). You are on Chain ID: ${network.chainId}`);
+      }
+      
       const signer = await provider.getSigner();
 
       // Use stored blockchain_event_id

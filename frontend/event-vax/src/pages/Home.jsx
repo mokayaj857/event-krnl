@@ -112,6 +112,11 @@ const UltimateEventPlatform = () => {
     try {
       setIsLoadingEvents(true);
       const response = await fetch('http://localhost:8080/api/events');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const result = await response.json();
 
       if (result.success) {
@@ -132,6 +137,9 @@ const UltimateEventPlatform = () => {
       }
     } catch (error) {
       console.error('Error fetching events:', error);
+      console.error('Make sure backend server is running on http://localhost:8080');
+      // Still allow the app to function, just with no events
+      setEvents([]);
     } finally {
       setIsLoadingEvents(false);
     }

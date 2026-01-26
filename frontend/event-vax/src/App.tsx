@@ -19,9 +19,12 @@ import Teams from "./pages/Teams";
 import MintNFT from "./pages/MintNFT";
 import WaitlistPage from "./pages/WaitingList";
 import QuantumTicketResale from "./pages/QuantamTicketResale";
+import NetworkWarning from "./components/NetworkWarning";
 const App = () => {
   return (
     <Router>
+      {/* Network Warning - Displayed on all pages */}
+      <NetworkWarning />
       {/* Header Component - Displayed on all pages */}
       <Header />
       {/* Chatbit Component - Displayed on all pages */}
