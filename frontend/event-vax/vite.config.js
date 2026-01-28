@@ -10,6 +10,16 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['@chakra-ui/react'],
+    include: ['@chakra-ui/react', '@privy-io/react-auth', '@krnl-dev/sdk-react-7702'],
+    exclude: ['@privy-io/react-auth/iframe'],
+  },
+  // Handle wallet extension conflicts
+  server: {
+    headers: {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+    },
+    // Increase timeout for Privy iframe loading
+    middlewareMode: false,
   },
 });

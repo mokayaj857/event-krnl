@@ -5,6 +5,64 @@
     <link rel="icon" type="image/png" href="/assets/botImage.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EventVerse</title>
+    <script>
+      // ===== WALLET INJECTION PREVENTION =====
+      // CRITICAL: Runs BEFORE extensions load
+      // Disables all external wallet extension injection
+      // KRNL uses ONLY Privy's embedded wallets
+      
+      (function() {
+        if (typeof window === 'undefined') return;
+        
+        try {
+          // Disable all wallet extension detection
+          // This prevents MetaMask, Polkadot.js, etc. from injecting
+          
+          // 1. Block window.ethereum completely
+          Object.defineProperty(window, 'ethereum', {
+            value: undefined,
+            writable: false,
+            configurable: false,
+            enumerable: true
+          });
+          
+          // 2. Disable common extension detection attributes
+          const extensions = [
+            'isMetaMask',
+            'isCoinbaseWallet',
+            'isWalletConnect',
+            'isFrame',
+            'isTrust',
+            'isStatus',
+            'isTally'
+          ];
+          
+          extensions.forEach(attr => {
+            try {
+              Object.defineProperty(window, attr, {
+                value: false,
+                writable: false,
+                configurable: false
+              });
+            } catch (e) {}
+          });
+          
+          // 3. Prevent addEventListener from being hooked for ethereum injection
+          const originalAddEventListener = window.addEventListener;
+          window.addEventListener = function(event, handler, options) {
+            if (event === 'ethereum#initialized') {
+              return; // Block ethereum initialization events
+            }
+            return originalAddEventListener.call(this, event, handler, options);
+          };
+          
+          window.__KRNL_WALLET_BLOCKED__ = true;
+          
+        } catch (err) {
+          console.warn('[KRNL] Wallet blocking (non-critical):', err.message);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

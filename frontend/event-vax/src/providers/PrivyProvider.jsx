@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { PrivyProvider as PrivyRootProvider } from '@privy-io/react-auth';
 import { sepolia } from 'viem/chains';
 
@@ -13,10 +13,36 @@ import { sepolia } from 'viem/chains';
  *
  * Environment Variables:
  * - VITE_PRIVY_APP_ID (required)
- * - VITE_WALLETCONNECT_PROJECT_ID (optional)
+ * - VITE_WALLETCONNECT_PROJECT_ID (NOT USED - Privy embedded wallets only)
+ *
+ * IMPORTANT: KRNL uses ONLY Privy's embedded wallets.
+ * External wallet extensions (MetaMask, Polkadot.js, etc.) are DISABLED
+ * because they cause "Cannot redefine property: ethereum" conflicts.
  */
+
+// Ensure wallet environment is clean
+const ensureCleanWalletEnvironment = () => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    // Verify ethereum is blocked at window level
+    if (window.ethereum !== undefined) {
+      console.warn('[PrivyProvider] External wallet detected. Privy will ignore it.');
+    }
+  } catch (e) {
+    console.debug('[PrivyProvider] Wallet check:', e.message);
+  }
+};
+
 export const PrivyProvider = ({ children }) => {
+  const [isReady, setIsReady] = useState(false);
   const appId = import.meta.env.VITE_PRIVY_APP_ID;
+
+  // Initialize on mount
+  useEffect(() => {
+    ensureCleanWalletEnvironment();
+    setIsReady(true);
+  }, []);
 
   // Require Privy App ID in production
   if (!appId) {
@@ -36,6 +62,10 @@ export const PrivyProvider = ({ children }) => {
     return <>{children}</>;
   }
 
+  if (!isReady) {
+    return null; // Wait for wallet environment setup
+  }
+
   return (
     <PrivyRootProvider
       appId={appId}
@@ -44,7 +74,6 @@ export const PrivyProvider = ({ children }) => {
         appearance: {
           theme: 'light',
           accentColor: '#7C3AED',
-          logo: 'https://your-logo-url.com/logo.png', // Optional: Add your logo
         },
         
         // CRITICAL: Enable embedded wallets for EIP-7702 support
@@ -59,19 +88,21 @@ export const PrivyProvider = ({ children }) => {
         // Support additional chains if needed
         supportedChains: [sepolia],
 
-        // WalletConnect support (optional)
-        ...(import.meta.env.VITE_WALLETCONNECT_PROJECT_ID && {
-          walletConnectCloudProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
-        }),
-
-        // Enable login methods
-        loginMethods: ['email', 'wallet'],
-        
-        // Wallet configuration
-        appearance: {
-          theme: 'light',
-          accentColor: '#7C3AED',
+        // CRITICAL: DISABLE all external wallets completely
+        // Only use Privy's embedded wallets with EIP-7702
+        // Do NOT initialize any external wallet connectors
+        externalWallets: {
+          injected: {
+            shimDisableFlag: true,
+          },
+          walletConnect: {
+            enabled: false,
+          },
         },
+
+        // ONLY email login - no external wallet options
+        // This prevents Privy from trying to initialize wallet connectors
+        loginMethods: ['email'],
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useKRNL, WorkflowStatusCode } from '@krnl-dev/sdk-react-7702';
 import { usePrivy } from '@privy-io/react-auth';
 
@@ -15,7 +15,7 @@ const KRNLStatus = () => {
   const [testStatus, setTestStatus] = useState('');
   const [workflowResult, setWorkflowResult] = useState(null);
 
-  // Privy hooks
+  // Privy hooks - with error handling
   const { 
     login, 
     logout, 
@@ -38,13 +38,25 @@ const KRNLStatus = () => {
     error,
   } = useKRNL();
 
-  // Handler: Authorize KRNL smart account
+  // Monitor KRNL errors
+  useEffect(() => {
+    if (error) {
+      console.error('[KRNLStatus] KRNL Error:', error);
+    }
+  }, [error]);
+
+  // Handler: Authorize KRNL smart account with improved error handling
   const handleAuthorize = async () => {
     try {
       setTestStatus('Authorizing KRNL smart account...');
       
+      if (!authenticated) {
+        setTestStatus('❌ Error: Not authenticated. Please connect wallet first.');
+        return;
+      }
+
       if (!embeddedWallet) {
-        setTestStatus('❌ Error: No embedded wallet. Please connect wallet first.');
+        setTestStatus('❌ Error: No embedded wallet. Please reconnect.');
         return;
       }
 
@@ -59,7 +71,8 @@ const KRNLStatus = () => {
         setTestStatus('ℹ️ Smart account already authorized');
       }
     } catch (err) {
-      setTestStatus(`❌ Authorization error: ${err.message}`);
+      const errorMsg = err?.message || String(err);
+      setTestStatus(`❌ Authorization error: ${errorMsg}`);
       console.error('Authorization error:', err);
     }
   };
@@ -288,9 +301,9 @@ const KRNLStatus = () => {
           <h3 style={{ fontWeight: '600', marginBottom: '0.5rem' }}>📚 Integration Steps:</h3>
           <ol style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
             <li>Ensure all environment variables are set in .env</li>
-            <li>Click "Connect Wallet" to authenticate with Privy</li>
-            <li>Click "Authorize Smart Account" to enable EIP-7702 delegation</li>
-            <li>Click "Test Workflow" to verify KRNL Protocol integration</li>
+            <li>Click {'"'}Connect Wallet{'"'} to authenticate with Privy</li>
+            <li>Click {'"'}Authorize Smart Account{'"'} to enable EIP-7702 delegation</li>
+            <li>Click {'"'}Test Workflow{'"'} to verify KRNL Protocol integration</li>
           </ol>
         </div>
       </div>
