@@ -1,46 +1,76 @@
 import React from 'react';
 import { PrivyProvider as PrivyRootProvider } from '@privy-io/react-auth';
+import { sepolia } from 'viem/chains';
 
 /**
- * Privy provider wrapper for KRNL wallet integration.
+ * Privy Provider Wrapper for KRNL Integration
  *
- * Expects:
- * - VITE_PRIVY_APP_ID
- * - (optional) VITE_WALLETCONNECT_PROJECT_ID
+ * Privy is required for KRNL SDK because:
+ * - Full EIP-7702 account abstraction support
+ * - Temporary delegation of account authority
+ * - Smart account capabilities on existing EOAs
+ * - Gasless transactions via delegation
+ *
+ * Environment Variables:
+ * - VITE_PRIVY_APP_ID (required)
+ * - VITE_WALLETCONNECT_PROJECT_ID (optional)
  */
 export const PrivyProvider = ({ children }) => {
-  const rawAppId = import.meta.env.VITE_PRIVY_APP_ID;
-  const appId = rawAppId || (import.meta.env.PROD ? 'development' : undefined);
+  const appId = import.meta.env.VITE_PRIVY_APP_ID;
 
-  // In dev, allow the app to run even if PRIVY_APP_ID is not set.
+  // Require Privy App ID in production
   if (!appId) {
-    console.warn(
-      '[PrivyProvider] VITE_PRIVY_APP_ID is not set. Skipping Privy initialization.'
+    console.error(
+      '[PrivyProvider] VITE_PRIVY_APP_ID is not set. KRNL SDK requires Privy for EIP-7702 support.'
     );
+    if (import.meta.env.PROD) {
+      return (
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <h2>Configuration Error</h2>
+          <p>VITE_PRIVY_APP_ID is required for KRNL SDK integration.</p>
+          <p>Please set this in your .env file.</p>
+        </div>
+      );
+    }
+    // Allow dev mode to continue with warning
     return <>{children}</>;
-  }
-
-  if (appId === 'development' && import.meta.env.PROD) {
-    console.warn(
-      '[PrivyProvider] Using fallback Privy app id "development" in production. Set VITE_PRIVY_APP_ID to your real value.'
-    );
   }
 
   return (
     <PrivyRootProvider
       appId={appId}
       config={{
+        // Privy UI customization
         appearance: {
           theme: 'light',
           accentColor: '#7C3AED',
+          logo: 'https://your-logo-url.com/logo.png', // Optional: Add your logo
         },
+        
+        // CRITICAL: Enable embedded wallets for EIP-7702 support
         embeddedWallets: {
-          ethereum: {
-            createOnLogin: 'all-users',
-          },
+          createOnLogin: 'all-users', // Auto-create embedded wallet
+          requireUserPasswordOnCreate: false, // Streamlined UX
         },
-        walletConnectCloud: {
-          projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '',
+
+        // Default to Sepolia for KRNL Protocol
+        defaultChain: sepolia,
+        
+        // Support additional chains if needed
+        supportedChains: [sepolia],
+
+        // WalletConnect support (optional)
+        ...(import.meta.env.VITE_WALLETCONNECT_PROJECT_ID && {
+          walletConnectCloudProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
+        }),
+
+        // Enable login methods
+        loginMethods: ['email', 'wallet'],
+        
+        // Wallet configuration
+        appearance: {
+          theme: 'light',
+          accentColor: '#7C3AED',
         },
       }}
     >
