@@ -1,10 +1,9 @@
----
 
-# 🎟️ Avara
+# **🎟️ Avara**
 
 **Modular Decentralized Event Ticketing & Attendance Infrastructure**
 
----
+
 
 ## 🌍 Overview
 
@@ -199,7 +198,7 @@ npx hardhat run scripts/deploy.js --network <network>
 ## 🎥 Project Demo
 
 <p align="center">
-  <a href="https://www.youtube.com/playlist?list=PLKw819e6--6wuT4hH4dJPO4ckFmUeyure" target="_blank">
+  <a href="https://youtu.be/1Xijcwkno-c?si=JsR2IB4tthz1EmtK" target="_blank">
     <img src="https://img.icons8.com/clouds/500/video-playlist.png" alt="Watch Project Demo" width="60%" />
   </a>
 </p>
